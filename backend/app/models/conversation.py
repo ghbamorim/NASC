@@ -13,4 +13,9 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    messages: Mapped[list["Message"]] = relationship(cascade="all, delete-orphan")
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        lazy="raise",
+        order_by="Message.sequence",
+    )
