@@ -14,8 +14,7 @@ class Settings(BaseSettings):
     database_pool_max_overflow: int = 2
     database_echo_pool: None | bool | Literal["debug"] = False
 
-    whatsapp_verify_token: str
-    whatsapp_app_secret: str
+    telegram_bot_token: str
 
     gemini_api_key: str
     gemini_model: str
