@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from app.core.dependencies.database import DBSession
+from app.core.dependencies.database import DbSession
 from app.services.channel_message import ChannelMessageService
 
 router = APIRouter(prefix="/channel-messages", tags=["Channels"])
@@ -23,7 +23,7 @@ class ChannelMessageResponse(BaseModel):
 @router.post("", response_model=ChannelMessageResponse)
 async def process_channel_message(
     request: ChannelMessageRequest,
-    db: DBSession,
+    db: DbSession,
 ) -> ChannelMessageResponse:
     service = ChannelMessageService(db)
 

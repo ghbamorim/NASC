@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.core.dependencies.database import DBSession
+from app.core.dependencies.database import DbSession
 from app.services.chat import ChatService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -20,7 +20,7 @@ class ChatResponse(BaseModel):
 
 
 @router.post("", response_model=ChatResponse)
-async def chat(request: ChatRequest, db: DBSession) -> ChatResponse:
+async def chat(request: ChatRequest, db: DbSession) -> ChatResponse:
     service = ChatService(db)
 
     try:
