@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -22,6 +24,6 @@ class UserPatch(BaseModel):
 
 
 class UserResponse(BaseUser):
-    id: int
+    id: UUID
     is_active: bool
     model_config = ConfigDict(from_attributes=True)

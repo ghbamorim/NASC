@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 import jwt
 from fastapi import Cookie, Depends, HTTPException, status
@@ -14,7 +15,8 @@ type Token = Annotated[str | None, Cookie(alias=settings.auth_cookie_name)]
 async def get_current_user(db: DbSession, token: Token = None) -> User:
     if token is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
         )
 
     try:
@@ -22,31 +24,31 @@ async def get_current_user(db: DbSession, token: Token = None) -> User:
             token,
             settings.jwt_secret_key.get_secret_value(),
             algorithms=[settings.jwt_algorithm],
+            options={"require": ["sub", "exp", "iat"]},
         )
 
-        subject = payload["sub"]
+        user_id = UUID(payload["sub"])
 
-        if subject is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-            )
-
-        user_id = int(subject)
-    except (InvalidTokenError, ValueError):
+    except (InvalidTokenError, ValueError, TypeError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
-        )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        ) from exc
+
     user: User | None = await db.get(User, user_id)
 
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
         )
 
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User is inactive"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is inactive",
         )
+
     return user
 
 
