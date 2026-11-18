@@ -1,5 +1,6 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import jwt
 from pwdlib import PasswordHash
@@ -17,7 +18,7 @@ async def verify_password(password: str, hashed_password: str) -> bool:
     return await asyncio.to_thread(password_hash.verify, password, hashed_password)
 
 
-def create_access_token(user_id: int) -> str:
+def create_access_token(user_id: UUID) -> str:
     now = datetime.now(UTC)
 
     expires_at = now + timedelta(minutes=settings.jwt_access_token_expire_minutes)

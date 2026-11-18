@@ -35,11 +35,19 @@ class UserRepository(LoadFromPydantic):
     async def update(self, user_id: UUID, data: UserUpdate | UserPatch) -> User:
         exclude_unset = isinstance(data, UserPatch)
 
-        user: User | None = await self.get(user_id)
+        user = await self.get(user_id)
         if user is None:
             raise NotFoundError("User")
 
-        self.load_from_pydantic(user, data, exclude_unset=exclude_unset)
+        self.load_from_pydantic(
+            user,
+            data,
+            exclude_unset=exclude_unset,
+            exclude={"password"},
+        )
+
+        if data.password is not None:
+            user.password_hash = await hash_password(data.password)
 
         await self.db.flush()
         return user
