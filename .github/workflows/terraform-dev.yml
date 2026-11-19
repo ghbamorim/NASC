@@ -3,9 +3,6 @@ name: Terraform Dev
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "infra/**"
-      - ".github/workflows/terraform-dev.yml"
 
   push:
     branches: [main]
