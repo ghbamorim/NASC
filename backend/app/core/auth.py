@@ -53,3 +53,19 @@ async def get_current_user(db: DbSession, token: Token = None) -> User:
 
 
 type CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+async def get_current_admin_user(user: CurrentUser) -> User:
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
+        )
+
+    return user
+
+
+type CurrentAdminUser = Annotated[
+    User,
+    Depends(get_current_admin_user),
+]
