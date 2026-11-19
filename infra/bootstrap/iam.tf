@@ -40,7 +40,9 @@ data "aws_iam_policy_document" "github_assume" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:ghbamorim/NASC:ref:refs/heads/main"]
+      values = [
+        "repo:ghbamorim@79848031/NASC@1455266988:ref:refs/heads/main"
+      ]
     }
   }
 }
