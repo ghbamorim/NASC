@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     auth_cookie_name: str = "access_token"
     auth_cookie_secure: bool = False
-    auth_cookie_samesite: str = "lax"
+    auth_cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
 
     telegram_bot_token: str
 
