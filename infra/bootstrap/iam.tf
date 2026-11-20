@@ -45,7 +45,6 @@ data "aws_iam_policy_document" "github_assume" {
         "repo:ghbamorim@79848031/NASC@1455266988:ref:refs/heads/main",
         "repo:ghbamorim@79848031/NASC@1455266988:pull_request"
       ]
-
     }
   }
 }
@@ -65,7 +64,6 @@ resource "aws_iam_role_policy_attachment" "nasc_dev_backend" {
   role       = aws_iam_role.nasc_dev_deploy.name
   policy_arn = aws_iam_policy.nasc_backend.arn
 }
-
 
 data "aws_iam_policy_document" "github_plan_assume" {
   statement {
@@ -115,8 +113,6 @@ resource "aws_iam_role_policy_attachment" "nasc_plan_backend" {
   policy_arn = aws_iam_policy.nasc_plan_backend.arn
 }
 
-
-
 resource "aws_iam_role_policy" "nasc_dev_cloudwatch" {
   name = "nasc-dev-cloudwatch"
   role = aws_iam_role.nasc_dev_deploy.id
@@ -157,7 +153,9 @@ resource "aws_iam_role_policy" "nasc_dev_cloudwatch" {
 
         Resource = [
           "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app",
-          "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app:*"
+          "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app:*",
+          "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-dev-telegram-webhook",
+          "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-dev-telegram-webhook:*"
         ]
       }
     ]
@@ -196,13 +194,14 @@ resource "aws_iam_role_policy" "nasc_dev_plan_cloudwatch" {
           "logs:ListTagsForResource"
         ]
 
-        Resource = "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app"
+        Resource = [
+          "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app",
+          "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-dev-telegram-webhook"
+        ]
       }
     ]
   })
 }
-
-
 
 resource "aws_iam_role_policy" "nasc_dev_sqs" {
   name = "nasc-dev-sqs"
@@ -308,14 +307,24 @@ resource "aws_iam_role_policy" "nasc_dev_lambda" {
         Effect = "Allow"
         Action = [
           "lambda:CreateFunction",
+          "lambda:DeleteFunction",
           "lambda:GetFunction",
           "lambda:GetFunctionConfiguration",
+          "lambda:GetFunctionCodeSigningConfig",
+          "lambda:GetFunctionConcurrency",
+          "lambda:GetFunctionEventInvokeConfig",
+          "lambda:GetFunctionRecursionConfig",
+          "lambda:GetRuntimeManagementConfig",
+          "lambda:ListVersionsByFunction",
+          "lambda:ListTags",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",
-          "lambda:DeleteFunction",
-          "lambda:ListTags",
+          "lambda:PutRuntimeManagementConfig",
           "lambda:TagResource",
-          "lambda:UntagResource"
+          "lambda:UntagResource",
+          "lambda:AddPermission",
+          "lambda:RemovePermission",
+          "lambda:GetPolicy"
         ]
         Resource = "arn:aws:lambda:us-east-2:242627333067:function:nasc-dev-telegram-webhook"
       },
@@ -373,15 +382,24 @@ resource "aws_iam_role_policy" "nasc_dev_plan_lambda" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "ReadTelegramLambda"
         Effect = "Allow"
         Action = [
           "lambda:GetFunction",
           "lambda:GetFunctionConfiguration",
-          "lambda:ListTags"
+          "lambda:GetFunctionCodeSigningConfig",
+          "lambda:GetFunctionConcurrency",
+          "lambda:GetFunctionEventInvokeConfig",
+          "lambda:GetFunctionRecursionConfig",
+          "lambda:GetRuntimeManagementConfig",
+          "lambda:ListVersionsByFunction",
+          "lambda:ListTags",
+          "lambda:GetPolicy"
         ]
         Resource = "arn:aws:lambda:us-east-2:242627333067:function:nasc-dev-telegram-webhook"
       },
       {
+        Sid    = "ReadTelegramLambdaRole"
         Effect = "Allow"
         Action = [
           "iam:GetRole",
@@ -391,6 +409,61 @@ resource "aws_iam_role_policy" "nasc_dev_plan_lambda" {
           "iam:ListInstanceProfilesForRole"
         ]
         Resource = "arn:aws:iam::242627333067:role/nasc-dev-telegram-webhook"
+      }
+    ]
+  })
+}
+
+
+resource "aws_iam_role_policy" "nasc_dev_api_gateway" {
+  name = "nasc-dev-api-gateway"
+  role = aws_iam_role.nasc_dev_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManageTelegramHttpApi"
+        Effect = "Allow"
+
+        Action = [
+          "apigateway:POST",
+          "apigateway:GET",
+          "apigateway:PATCH",
+          "apigateway:PUT",
+          "apigateway:DELETE",
+          "apigateway:TagResource",
+          "apigateway:UntagResource"
+        ]
+
+        Resource = [
+          "arn:aws:apigateway:us-east-2::/apis",
+          "arn:aws:apigateway:us-east-2::/apis/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_plan_api_gateway" {
+  name = "nasc-dev-plan-api-gateway"
+  role = aws_iam_role.nasc_dev_plan.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadTelegramHttpApi"
+        Effect = "Allow"
+
+        Action = [
+          "apigateway:GET"
+        ]
+
+        Resource = [
+          "arn:aws:apigateway:us-east-2::/apis",
+          "arn:aws:apigateway:us-east-2::/apis/*"
+        ]
       }
     ]
   })
