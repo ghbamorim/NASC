@@ -232,3 +232,4 @@ crash.*.log
 
 # Local database backups
 gifff-db.dump*.dump
+infra/environments/dev/telegram_webhook.zip
