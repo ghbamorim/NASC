@@ -1,4 +1,5 @@
 name: Backend CI
+run-name: "Backend Tests | PR #${{ github.event.pull_request.number }}"
 
 on:
   pull_request:
