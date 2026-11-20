@@ -295,3 +295,103 @@ resource "aws_iam_role_policy" "nasc_dev_plan_secrets" {
     }]
   })
 }
+
+resource "aws_iam_role_policy" "nasc_dev_lambda" {
+  name = "nasc-dev-lambda"
+  role = aws_iam_role.nasc_dev_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManageTelegramLambda"
+        Effect = "Allow"
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:UpdateFunctionCode",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:DeleteFunction",
+          "lambda:ListTags",
+          "lambda:TagResource",
+          "lambda:UntagResource"
+        ]
+        Resource = "arn:aws:lambda:us-east-2:242627333067:function:nasc-dev-telegram-webhook"
+      },
+      {
+        Sid      = "PassTelegramLambdaRole"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = "arn:aws:iam::242627333067:role/nasc-dev-telegram-webhook"
+
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "lambda.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_lambda_iam" {
+  name = "nasc-dev-lambda-iam"
+  role = aws_iam_role.nasc_dev_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManageTelegramLambdaRole"
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:GetRole",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:DeleteRole",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole",
+          "iam:PutRolePolicy",
+          "iam:GetRolePolicy",
+          "iam:DeleteRolePolicy"
+        ]
+        Resource = "arn:aws:iam::242627333067:role/nasc-dev-telegram-webhook"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_plan_lambda" {
+  name = "nasc-dev-plan-lambda"
+  role = aws_iam_role.nasc_dev_plan.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:ListTags"
+        ]
+        Resource = "arn:aws:lambda:us-east-2:242627333067:function:nasc-dev-telegram-webhook"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:GetRole",
+          "iam:GetRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole"
+        ]
+        Resource = "arn:aws:iam::242627333067:role/nasc-dev-telegram-webhook"
+      }
+    ]
+  })
+}
