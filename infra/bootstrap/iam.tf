@@ -116,18 +116,37 @@ resource "aws_iam_role_policy_attachment" "nasc_plan_backend" {
 }
 
 
+
 resource "aws_iam_role_policy" "nasc_dev_cloudwatch" {
   name = "nasc-dev-cloudwatch"
   role = aws_iam_role.nasc_dev_deploy.id
 
   policy = jsonencode({
     Version = "2012-10-17"
+
     Statement = [
       {
+        Sid    = "DescribeLogGroups"
         Effect = "Allow"
+
+        Action = [
+          "logs:DescribeLogGroups"
+        ]
+
+        Resource = "*"
+
+        Condition = {
+          StringEquals = {
+            "aws:RequestedRegion" = "us-east-2"
+          }
+        }
+      },
+      {
+        Sid    = "ManageNascLogGroup"
+        Effect = "Allow"
+
         Action = [
           "logs:CreateLogGroup",
-          "logs:DescribeLogGroups",
           "logs:ListTagsForResource",
           "logs:PutRetentionPolicy",
           "logs:DeleteRetentionPolicy",
@@ -135,6 +154,7 @@ resource "aws_iam_role_policy" "nasc_dev_cloudwatch" {
           "logs:UntagResource",
           "logs:DeleteLogGroup"
         ]
+
         Resource = [
           "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app",
           "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/dev/app:*"
@@ -143,8 +163,6 @@ resource "aws_iam_role_policy" "nasc_dev_cloudwatch" {
     ]
   })
 }
-
-
 
 resource "aws_iam_role_policy" "nasc_dev_plan_cloudwatch" {
   name = "nasc-dev-plan-cloudwatch"
