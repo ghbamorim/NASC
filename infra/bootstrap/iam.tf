@@ -201,3 +201,97 @@ resource "aws_iam_role_policy" "nasc_dev_plan_cloudwatch" {
     ]
   })
 }
+
+
+
+resource "aws_iam_role_policy" "nasc_dev_sqs" {
+  name = "nasc-dev-sqs"
+  role = aws_iam_role.nasc_dev_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManageNascQueues"
+        Effect = "Allow"
+        Action = [
+          "sqs:CreateQueue",
+          "sqs:DeleteQueue",
+          "sqs:GetQueueAttributes",
+          "sqs:SetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ListQueueTags",
+          "sqs:TagQueue",
+          "sqs:UntagQueue"
+        ]
+        Resource = [
+          "arn:aws:sqs:us-east-2:242627333067:nasc-dev-messages",
+          "arn:aws:sqs:us-east-2:242627333067:nasc-dev-messages-dlq"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_plan_sqs" {
+  name = "nasc-dev-plan-sqs"
+  role = aws_iam_role.nasc_dev_plan.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadNascQueues"
+        Effect = "Allow"
+        Action = [
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ListQueueTags"
+        ]
+        Resource = [
+          "arn:aws:sqs:us-east-2:242627333067:nasc-dev-messages",
+          "arn:aws:sqs:us-east-2:242627333067:nasc-dev-messages-dlq"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_secrets" {
+  name = "nasc-dev-secrets"
+  role = aws_iam_role.nasc_dev_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "secretsmanager:CreateSecret",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:DeleteSecret",
+        "secretsmanager:UpdateSecret",
+        "secretsmanager:TagResource",
+        "secretsmanager:UntagResource",
+        "secretsmanager:GetResourcePolicy"
+      ]
+      Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/telegram/*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "nasc_dev_plan_secrets" {
+  name = "nasc-dev-plan-secrets"
+  role = aws_iam_role.nasc_dev_plan.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetResourcePolicy"
+      ]
+      Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/telegram/*"
+    }]
+  })
+}
