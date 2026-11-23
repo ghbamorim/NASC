@@ -35,7 +35,7 @@ resource "aws_db_instance" "postgres" {
   db_name  = "nasc"
   username = "nasc_admin"
 
-  password                    = local.backend_config["POSTGRES_PASSWORD"]
+  password = local.backend_config["POSTGRES_PASSWORD"]
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.rds.id]
