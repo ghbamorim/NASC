@@ -246,19 +246,37 @@ resource "aws_iam_role_policy" "nasc_dev_secrets" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "secretsmanager:CreateSecret",
-        "secretsmanager:DescribeSecret",
-        "secretsmanager:DeleteSecret",
-        "secretsmanager:UpdateSecret",
-        "secretsmanager:TagResource",
-        "secretsmanager:UntagResource",
-        "secretsmanager:GetResourcePolicy"
-      ]
-      Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/telegram/*"
-    }]
+
+    Statement = [
+      {
+        Sid    = "ManageTelegramSecrets"
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:UpdateSecret",
+          "secretsmanager:TagResource",
+          "secretsmanager:UntagResource",
+          "secretsmanager:GetResourcePolicy"
+        ]
+
+        Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/telegram/*"
+      },
+      {
+        Sid    = "ReadBackendConfigSecret"
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetResourcePolicy",
+          "secretsmanager:GetSecretValue"
+        ]
+
+        Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/backend/config-*"
+      }
+    ]
   })
 }
 
@@ -287,7 +305,8 @@ resource "aws_iam_role_policy" "nasc_dev_plan_secrets" {
 
         Action = [
           "secretsmanager:DescribeSecret",
-          "secretsmanager:GetResourcePolicy"
+          "secretsmanager:GetResourcePolicy",
+          "secretsmanager:GetSecretValue"
         ]
 
         Resource = "arn:aws:secretsmanager:us-east-2:242627333067:secret:nasc/dev/backend/config-*"
@@ -770,6 +789,16 @@ resource "aws_iam_role_policy" "nasc_dev_telegram_consumer_deploy" {
             "aws:RequestedRegion" = "us-east-2"
           }
         }
+      },
+      {
+        Sid    = "ReadConsumerEventSourceMappingTags"
+        Effect = "Allow"
+
+        Action = [
+          "lambda:ListTags"
+        ]
+
+        Resource = "arn:aws:lambda:us-east-2:242627333067:event-source-mapping:*"
       },
       {
         Sid      = "PassConsumerLambdaRole"
