@@ -77,18 +77,72 @@ jobs:
         env:
           INSTANCE_ID: ${{ steps.ec2.outputs.instance_id }}
         run: |
-          cat > commands.json <<'EOF'
-          {
-            "commands": [
-              "set -e",
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          from pathlib import Path
+
+          compose = base64.b64encode(
+              Path("deploy/docker-compose.yml").read_bytes()
+          ).decode()
+
+          image = os.environ["ECR_IMAGE"]
+
+          commands = [
+              "set -eu",
               "cd /opt/nasc/deploy",
+              f"echo '{compose}' | base64 -d > docker-compose.yml",
+              """aws secretsmanager get-secret-value \
+                --secret-id nasc/dev/backend/config \
+                --region us-east-2 \
+                --query SecretString \
+                --output text > /tmp/nasc-config.json""",
+              """python3 - <<'PYENV'
+          import json
+          from pathlib import Path
+          from urllib.parse import quote
+
+          config = json.loads(
+              Path('/tmp/nasc-config.json').read_text()
+          )
+
+          password = quote(
+              config['POSTGRES_PASSWORD'],
+              safe=''
+          )
+
+          config['DATABASE_URL'] = (
+              'postgresql+asyncpg://nasc_admin:'
+              + password
+              + '@nasc-dev-postgres.cbwmwcm8yv8g.us-east-2.rds.amazonaws.com:5432/nasc'
+          )
+
+          config.setdefault(
+              'GEMINI_MODEL',
+              'gemini-2.5-flash'
+          )
+
+          with open('.env', 'w') as env:
+              for key, value in config.items():
+                  if key == 'POSTGRES_PASSWORD':
+                      continue
+
+                  env.write(f'{key}={value}\\n')
+          PYENV""",
+              "chmod 600 .env",
+              "rm -f /tmp/nasc-config.json",
+              f"printf '%s\\n' 'ECR_IMAGE={image}' > .compose.env",
               "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 242627333067.dkr.ecr.us-east-2.amazonaws.com",
-              "docker compose pull",
-              "docker compose up -d",
-              "docker compose ps"
-            ]
-          }
-          EOF
+              "docker compose --env-file .compose.env pull",
+              "docker compose --env-file .compose.env up -d",
+              "docker compose --env-file .compose.env ps"
+          ]
+
+          Path("commands.json").write_text(
+              json.dumps({"commands": commands})
+          )
+          PY
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \

@@ -1,3 +1,4 @@
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -59,9 +60,7 @@ resource "aws_iam_role_policy" "ec2_app" {
         "secretsmanager:GetSecretValue"
       ]
       Resource = [
-        aws_secretsmanager_secret.telegram_bot_token.arn,
-        aws_secretsmanager_secret.backend_config.arn,
-        aws_db_instance.postgres.master_user_secret[0].secret_arn
+        aws_secretsmanager_secret.backend_config.arn
       ]
     }]
   })
@@ -94,7 +93,6 @@ resource "aws_instance" "backend" {
     encrypted   = true
   }
 
-
   user_data = <<-EOF
   #!/bin/bash
   set -euo pipefail
@@ -114,7 +112,6 @@ resource "aws_instance" "backend" {
   mkdir -p /opt/nasc/deploy
   chmod 700 /opt/nasc/deploy
 EOF
-
 
   tags = {
     Name = "nasc-dev-backend"

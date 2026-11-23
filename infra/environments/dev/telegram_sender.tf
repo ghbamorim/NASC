@@ -1,3 +1,4 @@
+
 data "archive_file" "telegram_sender" {
   type        = "zip"
   source_dir  = "${path.module}/../../../lambdas/telegram_sender"
@@ -49,14 +50,14 @@ resource "aws_iam_role_policy" "telegram_sender" {
         Resource = aws_sqs_queue.telegram_outgoing.arn
       },
       {
-        Sid    = "ReadTelegramBotToken"
+        Sid    = "ReadBackendConfig"
         Effect = "Allow"
 
         Action = [
           "secretsmanager:GetSecretValue"
         ]
 
-        Resource = aws_secretsmanager_secret.telegram_bot_token.arn
+        Resource = aws_secretsmanager_secret.backend_config.arn
       },
       {
         Sid    = "WriteLogs"
@@ -88,7 +89,7 @@ resource "aws_lambda_function" "telegram_sender" {
 
   environment {
     variables = {
-      TELEGRAM_BOT_TOKEN_SECRET_ARN = aws_secretsmanager_secret.telegram_bot_token.arn
+      BACKEND_CONFIG_SECRET_ARN = aws_secretsmanager_secret.backend_config.arn
     }
   }
 

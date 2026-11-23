@@ -11,6 +11,16 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
+data "aws_secretsmanager_secret_version" "backend_config" {
+  secret_id = aws_secretsmanager_secret.backend_config.id
+}
+
+locals {
+  backend_config = jsondecode(
+    data.aws_secretsmanager_secret_version.backend_config.secret_string
+  )
+}
+
 resource "aws_db_instance" "postgres" {
   identifier = "nasc-dev-postgres"
 
@@ -25,7 +35,7 @@ resource "aws_db_instance" "postgres" {
   db_name  = "nasc"
   username = "nasc_admin"
 
-  manage_master_user_password = true
+  password                    = local.backend_config["POSTGRES_PASSWORD"]
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.rds.id]
@@ -46,8 +56,4 @@ resource "aws_db_instance" "postgres" {
 
 output "postgres_endpoint" {
   value = aws_db_instance.postgres.endpoint
-}
-
-output "postgres_master_secret_arn" {
-  value = aws_db_instance.postgres.master_user_secret[0].secret_arn
 }

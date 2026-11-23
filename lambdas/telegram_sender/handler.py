@@ -1,7 +1,7 @@
+
 import json
 import logging
 import os
-import urllib.error
 import urllib.request
 from functools import lru_cache
 
@@ -12,17 +12,16 @@ logger.setLevel(logging.INFO)
 
 secrets_manager = boto3.client("secretsmanager")
 
-TELEGRAM_BOT_TOKEN_SECRET_ARN = os.environ[
-    "TELEGRAM_BOT_TOKEN_SECRET_ARN"
-]
+BACKEND_CONFIG_SECRET_ARN = os.environ["BACKEND_CONFIG_SECRET_ARN"]
 
 
 @lru_cache(maxsize=1)
 def get_bot_token() -> str:
     result = secrets_manager.get_secret_value(
-        SecretId=TELEGRAM_BOT_TOKEN_SECRET_ARN
+        SecretId=BACKEND_CONFIG_SECRET_ARN
     )
-    return result["SecretString"]
+    config = json.loads(result["SecretString"])
+    return config["TELEGRAM_BOT_TOKEN"]
 
 
 def send_telegram_message(chat_id: str, message: str) -> None:
