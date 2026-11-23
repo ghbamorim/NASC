@@ -1,10 +1,9 @@
 resource "aws_s3_bucket" "terraform_state" {
-  bucket        = "nasc-terraform-state-242627333067-us-east-2"
+  bucket        = "aws-pratice-terraform-state-242627333067-us-east-2"
   force_destroy = false
 
   tags = {
-    Name      = "NASC Terraform State"
-    Project   = "NASC"
+    Name      = "Terraform State"
     ManagedBy = "Terraform"
   }
 }
@@ -21,6 +20,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
   bucket = aws_s3_bucket.terraform_state.id
 
   rule {
+    blocked_encryption_types = ["SSE-C"]
+    bucket_key_enabled       = false
+
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
