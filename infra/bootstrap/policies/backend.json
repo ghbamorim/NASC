@@ -5,10 +5,10 @@
       "Sid": "ListTerraformState",
       "Effect": "Allow",
       "Action": ["s3:ListBucket"],
-      "Resource": "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2",
+      "Resource": "arn:aws:s3:::aws-pratice-terraform-state-242627333067-us-east-2",
       "Condition": {
         "StringLike": {
-          "s3:prefix": ["dev/terraform.tfstate", "dev/terraform.tfstate.tflock"]
+          "s3:prefix": ["infra/terraform.tfstate"]
         }
       }
     },
@@ -16,13 +16,13 @@
       "Sid": "ReadWriteTerraformState",
       "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject"],
-      "Resource": "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2/dev/terraform.tfstate"
+      "Resource": "arn:aws:s3:::aws-pratice-terraform-state-242627333067-us-east-2/infra/terraform.tfstate"
     },
     {
       "Sid": "ManageTerraformStateLock",
       "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      "Resource": "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2/dev/terraform.tfstate.tflock"
+      "Resource": "arn:aws:s3:::aws-pratice-terraform-state-242627333067-us-east-2/infra/terraform.tfstate.tflock"
     }
   ]
 }
