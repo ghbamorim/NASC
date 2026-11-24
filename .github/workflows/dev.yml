@@ -24,6 +24,7 @@ concurrency:
 
 jobs:
   changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
 
     outputs:
@@ -43,11 +44,13 @@ jobs:
               - '.github/workflows/terraform-dev.yml'
 
   terraform:
+    name: Provision AWS Infrastructure
     needs: changes
     if: needs.changes.outputs.terraform == 'true'
     uses: ./.github/workflows/terraform-dev.yml
 
   deploy:
+    name: Deploy Application
     needs: [changes, terraform]
     if: |
       always() &&
