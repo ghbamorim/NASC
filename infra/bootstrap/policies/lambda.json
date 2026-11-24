@@ -100,6 +100,22 @@
         "lambda:GetLayerVersionPolicy"
       ],
       "Resource": "arn:aws:lambda:${region}:${account_id}:layer:nasc-*:*"
+    },
+    {
+      "Sid": "ManageNASCEventSourceMappings",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateEventSourceMapping",
+        "lambda:GetEventSourceMapping",
+        "lambda:UpdateEventSourceMapping",
+        "lambda:DeleteEventSourceMapping"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "${region}"
+        }
+      }
     }
   ]
 }
