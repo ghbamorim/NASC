@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     auth_cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
 
     telegram_bot_token: str
+    channel_api_key: SecretStr
 
     gemini_api_key: str
     gemini_model: str

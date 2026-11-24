@@ -31,11 +31,13 @@ DB_PASSWORD=$(jq -er '.DB_PASSWORD | select(length > 0)' <<< "$SECRETS")
 JWT_SECRET_KEY=$(jq -er '.JWT_SECRET_KEY | select(length > 0)' <<< "$SECRETS")
 TELEGRAM_BOT_TOKEN=$(jq -er '.TELEGRAM_BOT_TOKEN | select(length > 0)' <<< "$SECRETS")
 GEMINI_API_KEY=$(jq -er '.GEMINI_API_KEY | select(length > 0)' <<< "$SECRETS")
+CHANNEL_API_KEY=$(jq -er '.CHANNEL_API_KEY | select(length > 0)' <<< "$SECRETS")
 
 export DB_PASSWORD
 export JWT_SECRET_KEY
 export TELEGRAM_BOT_TOKEN
 export GEMINI_API_KEY
+export CHANNEL_API_KEY
 
 DATABASE_URL=$(python3 - <<'PY'
 import os

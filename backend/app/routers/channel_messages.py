@@ -1,39 +1,34 @@
-from uuid import UUID
+from fastapi import APIRouter, Depends
+from pydantic import Field
 
-from fastapi import APIRouter
-from pydantic import BaseModel, Field
-
+from app.core.dependencies.channel_auth import verify_channel_api_key
 from app.core.dependencies.database import DbSession
+from app.schemas.channel_messages import ChannelMessageResponse
 from app.services.channel_message import ChannelMessageService
 
 router = APIRouter(prefix="/channel-messages", tags=["Channels"])
 
 
-class ChannelMessageRequest(BaseModel):
-    channel: str = Field(min_length=1, max_length=30)
-    external_chat_id: str = Field(min_length=1, max_length=255)
-    message: str = Field(min_length=1)
-
-
-class ChannelMessageResponse(BaseModel):
-    conversation_id: UUID
-    response: str
-
-
-@router.post("", response_model=ChannelMessageResponse)
+@router.post(
+    "",
+    response_model=ChannelMessageResponse,
+    dependencies=[Depends(verify_channel_api_key)],
+)
 async def process_channel_message(
-    request: ChannelMessageRequest,
     db: DbSession,
+    channel: str = Field(min_length=1, max_length=30),
+    external_chat_id: str = Field(min_length=1, max_length=255),
+    external_message_id: str = Field(min_length=1, max_length=255),
+    message: str = Field(min_length=1),
 ) -> ChannelMessageResponse:
     service = ChannelMessageService(db)
 
     conversation_id, response = await service.process(
-        channel=request.channel,
-        external_chat_id=request.external_chat_id,
-        message=request.message,
+        channel=channel,
+        external_chat_id=external_chat_id,
+        external_message_id=external_message_id,
+        message=message,
     )
-
-    await db.commit()
 
     return ChannelMessageResponse(
         conversation_id=conversation_id,

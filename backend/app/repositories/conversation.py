@@ -27,7 +27,11 @@ class ConversationRepository:
         return await self.db.scalar(stmt)
 
     async def add_message(
-        self, conversation_id: UUID, role: MessageRole, content: str
+        self,
+        conversation_id: UUID,
+        role: MessageRole,
+        content: str,
+        external_message_id: str | None = None,
     ) -> Message:
         stmt = (
             select(Conversation)
@@ -55,7 +59,32 @@ class ConversationRepository:
             role=role,
             content=content,
             sequence=next_sequence,
+            external_message_id=external_message_id,
         )
         self.db.add(message)
         await self.db.flush()
         return message
+
+    async def get_existing_response(
+        self,
+        conversation_id: UUID,
+        external_message_id: str,
+    ) -> str | None:
+        statement = select(Message).where(
+            Message.conversation_id == conversation_id,
+            Message.external_message_id == external_message_id,
+            Message.role == "user",
+        )
+
+        message = await self.db.scalar(statement)
+
+        if message is None:
+            return None
+
+        statement = select(Message.content).where(
+            Message.conversation_id == conversation_id,
+            Message.sequence == message.sequence + 1,
+            Message.role == "assistant",
+        )
+
+        return await self.db.scalar(statement)

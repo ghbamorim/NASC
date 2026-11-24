@@ -20,6 +20,11 @@ class Message(Base):
             "sequence",
             name="uq_messages_conversation_sequence",
         ),
+        UniqueConstraint(
+            "conversation_id",
+            "external_message_id",
+            name="uq_messages_conversation_external_id",
+        ),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     sequence: Mapped[int] = mapped_column(Integer)
@@ -31,4 +36,8 @@ class Message(Base):
     conversation: Mapped["Conversation"] = relationship(
         back_populates="messages",
         lazy="raise",
+    )
+    external_message_id: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
     )

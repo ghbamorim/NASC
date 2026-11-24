@@ -24,8 +24,14 @@ class ChannelMessageService:
         self,
         channel: str,
         external_chat_id: str,
+        external_message_id: str,
         message: str,
     ) -> tuple[UUID, str]:
+        await self.channel_conversation_repository.lock(
+            channel=channel,
+            external_chat_id=external_chat_id,
+        )
+
         conversation_id = (
             await self.channel_conversation_repository.get_conversation_id(
                 channel=channel,
@@ -33,24 +39,19 @@ class ChannelMessageService:
             )
         )
 
+        is_new_conversation = conversation_id is None
+
         conversation_id, response = await self.chat_service.chat(
             message=message,
             conversation_id=conversation_id,
+            external_message_id=external_message_id,
         )
 
-        if conversation_id is not None:
-            existing_id = (
-                await self.channel_conversation_repository.get_conversation_id(
-                    channel=channel,
-                    external_chat_id=external_chat_id,
-                )
+        if is_new_conversation:
+            await self.channel_conversation_repository.create(
+                channel=channel,
+                external_chat_id=external_chat_id,
+                conversation_id=conversation_id,
             )
-
-            if existing_id is None:
-                await self.channel_conversation_repository.create(
-                    channel=channel,
-                    external_chat_id=external_chat_id,
-                    conversation_id=conversation_id,
-                )
 
         return conversation_id, response
