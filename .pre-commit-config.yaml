@@ -14,3 +14,17 @@ repos:
         language: system
         files: ^backend/.*\.py$
         pass_filenames: false
+
+      - id: terraform-fmt
+        name: Terraform format
+        entry: terraform fmt -recursive infra/
+        language: system
+        files: ^infra/.*\.tf(vars)?$
+        pass_filenames: false
+
+      - id: terraform-validate
+        name: Terraform validate
+        entry: terraform -chdir=infra/dev validate
+        language: system
+        files: ^infra/.*\.tf(vars)?$
+        pass_filenames: false
