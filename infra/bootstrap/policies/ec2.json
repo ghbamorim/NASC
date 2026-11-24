@@ -12,7 +12,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -30,14 +30,14 @@
         "ec2:RunInstances"
       ],
       "Resource": [
-        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
-        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
-        "arn:aws:ec2:us-east-2:242627333067:internet-gateway/*",
-        "arn:aws:ec2:us-east-2:242627333067:route-table/*",
-        "arn:aws:ec2:us-east-2:242627333067:security-group/*",
-        "arn:aws:ec2:us-east-2:242627333067:volume/*",
-        "arn:aws:ec2:us-east-2:242627333067:elastic-ip/*",
-        "arn:aws:ec2:us-east-2:242627333067:instance/*"
+        "arn:aws:ec2:${region}:${account_id}:vpc/*",
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:internet-gateway/*",
+        "arn:aws:ec2:${region}:${account_id}:route-table/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*",
+        "arn:aws:ec2:${region}:${account_id}:volume/*",
+        "arn:aws:ec2:${region}:${account_id}:elastic-ip/*",
+        "arn:aws:ec2:${region}:${account_id}:instance/*"
       ],
       "Condition": {
         "StringEquals": {
@@ -55,9 +55,9 @@
         "ec2:RunInstances"
       ],
       "Resource": [
-        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
-        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
-        "arn:aws:ec2:us-east-2:242627333067:security-group/*"
+        "arn:aws:ec2:${region}:${account_id}:vpc/*",
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*"
       ],
       "Condition": {
         "StringEquals": {
@@ -70,16 +70,16 @@
       "Effect": "Allow",
       "Action": ["ec2:RunInstances"],
       "Resource": [
-        "arn:aws:ec2:us-east-2::image/*",
-        "arn:aws:ec2:us-east-2::snapshot/*",
-        "arn:aws:ec2:us-east-2:242627333067:network-interface/*"
+        "arn:aws:ec2:${region}::image/*",
+        "arn:aws:ec2:${region}::snapshot/*",
+        "arn:aws:ec2:${region}:${account_id}:network-interface/*"
       ]
     },
     {
       "Sid": "TagResourcesDuringCreation",
       "Effect": "Allow",
       "Action": ["ec2:CreateTags"],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:*",
       "Condition": {
         "StringEquals": {
           "ec2:CreateAction": [
@@ -100,7 +100,7 @@
       "Sid": "ManageExistingNASCTags",
       "Effect": "Allow",
       "Action": ["ec2:CreateTags", "ec2:DeleteTags"],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:*",
       "Condition": {
         "StringEquals": {
           "ec2:ResourceTag/Project": "NASC"
@@ -125,7 +125,7 @@
         "ec2:DisassociateIamInstanceProfile",
         "ec2:ReplaceIamInstanceProfileAssociation"
       ],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
       "Condition": {
         "StringEquals": {
           "ec2:ResourceTag/Project": "NASC"
@@ -158,11 +158,11 @@
         "ec2:ModifySecurityGroupRules"
       ],
       "Resource": [
-        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
-        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
-        "arn:aws:ec2:us-east-2:242627333067:internet-gateway/*",
-        "arn:aws:ec2:us-east-2:242627333067:route-table/*",
-        "arn:aws:ec2:us-east-2:242627333067:security-group/*"
+        "arn:aws:ec2:${region}:${account_id}:vpc/*",
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:internet-gateway/*",
+        "arn:aws:ec2:${region}:${account_id}:route-table/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*"
       ],
       "Condition": {
         "StringEquals": {
@@ -180,8 +180,8 @@
         "ec2:ModifyVolume"
       ],
       "Resource": [
-        "arn:aws:ec2:us-east-2:242627333067:volume/*",
-        "arn:aws:ec2:us-east-2:242627333067:instance/*"
+        "arn:aws:ec2:${region}:${account_id}:volume/*",
+        "arn:aws:ec2:${region}:${account_id}:instance/*"
       ],
       "Condition": {
         "StringEquals": {
@@ -198,9 +198,9 @@
         "ec2:ReleaseAddress"
       ],
       "Resource": [
-        "arn:aws:ec2:us-east-2:242627333067:elastic-ip/*",
-        "arn:aws:ec2:us-east-2:242627333067:instance/*",
-        "arn:aws:ec2:us-east-2:242627333067:network-interface/*"
+        "arn:aws:ec2:${region}:${account_id}:elastic-ip/*",
+        "arn:aws:ec2:${region}:${account_id}:instance/*",
+        "arn:aws:ec2:${region}:${account_id}:network-interface/*"
       ],
       "Condition": {
         "StringEquals": {
@@ -212,7 +212,7 @@
       "Sid": "RestrictEC2InstanceType",
       "Effect": "Deny",
       "Action": ["ec2:RunInstances"],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
       "Condition": {
         "StringNotEquals": {
           "ec2:InstanceType": ["t3.micro", "t3.small"]
@@ -223,7 +223,7 @@
       "Sid": "RestrictInstanceTypeModification",
       "Effect": "Deny",
       "Action": ["ec2:ModifyInstanceAttribute"],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
       "Condition": {
         "StringEquals": {
           "ec2:Attribute": "instanceType"

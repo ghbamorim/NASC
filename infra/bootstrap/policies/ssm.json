@@ -18,7 +18,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -26,7 +26,7 @@
       "Sid": "ManageNASCInstances",
       "Effect": "Allow",
       "Action": ["ssm:SendCommand", "ssm:StartSession"],
-      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
       "Condition": {
         "StringEquals": {
           "ssm:resourceTag/Project": "NASC",
@@ -41,7 +41,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -49,13 +49,13 @@
       "Sid": "ManageOwnSessions",
       "Effect": "Allow",
       "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
-      "Resource": "arn:aws:ssm:us-east-2:242627333067:session/${aws:username}-*"
+      "Resource": "arn:aws:ssm:${region}:${account_id}:session/$${aws:username}-*"
     },
     {
       "Sid": "OpenOwnSessionDataChannel",
       "Effect": "Allow",
       "Action": ["ssmmessages:OpenDataChannel"],
-      "Resource": "arn:aws:ssm:us-east-2:242627333067:session/${aws:username}-*"
+      "Resource": "arn:aws:ssm:${region}:${account_id}:session/$${aws:username}-*"
     },
     {
       "Sid": "ManageNASCDocuments",
@@ -73,13 +73,13 @@
         "ssm:RemoveTagsFromResource",
         "ssm:ListTagsForResource"
       ],
-      "Resource": "arn:aws:ssm:us-east-2:242627333067:document/nasc-*"
+      "Resource": "arn:aws:ssm:${region}:${account_id}:document/nasc-*"
     },
     {
       "Sid": "UseNASCDocuments",
       "Effect": "Allow",
       "Action": ["ssm:SendCommand", "ssm:StartSession"],
-      "Resource": "arn:aws:ssm:us-east-2:242627333067:document/nasc-*"
+      "Resource": "arn:aws:ssm:${region}:${account_id}:document/nasc-*"
     },
     {
       "Sid": "ReadAWSManagedDocuments",
@@ -90,17 +90,17 @@
         "ssm:ListDocumentVersions",
         "ssm:DescribeDocumentPermission"
       ],
-      "Resource": "arn:aws:ssm:us-east-2::document/AWS-*"
+      "Resource": "arn:aws:ssm:${region}::document/AWS-*"
     },
     {
       "Sid": "UseAWSManagedCommandDocuments",
       "Effect": "Allow",
       "Action": ["ssm:SendCommand"],
       "Resource": [
-        "arn:aws:ssm:us-east-2::document/AWS-RunShellScript",
-        "arn:aws:ssm:us-east-2::document/AWS-RunPowerShellScript",
-        "arn:aws:ssm:us-east-2::document/AWS-UpdateSSMAgent",
-        "arn:aws:ssm:us-east-2::document/AWS-RunRemoteScript"
+        "arn:aws:ssm:${region}::document/AWS-RunShellScript",
+        "arn:aws:ssm:${region}::document/AWS-RunPowerShellScript",
+        "arn:aws:ssm:${region}::document/AWS-UpdateSSMAgent",
+        "arn:aws:ssm:${region}::document/AWS-RunRemoteScript"
       ]
     },
     {
@@ -108,11 +108,11 @@
       "Effect": "Allow",
       "Action": ["ssm:StartSession", "ssm:GetDocument", "ssm:DescribeDocument"],
       "Resource": [
-        "arn:aws:ssm:us-east-2:242627333067:document/SSM-SessionManagerRunShell",
-        "arn:aws:ssm:us-east-2::document/SSM-SessionManagerRunShell",
-        "arn:aws:ssm:us-east-2::document/AWS-StartInteractiveCommand",
-        "arn:aws:ssm:us-east-2::document/AWS-StartPortForwardingSession",
-        "arn:aws:ssm:us-east-2::document/AWS-StartPortForwardingSessionToRemoteHost"
+        "arn:aws:ssm:${region}:${account_id}:document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:${region}::document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:${region}::document/AWS-StartInteractiveCommand",
+        "arn:aws:ssm:${region}::document/AWS-StartPortForwardingSession",
+        "arn:aws:ssm:${region}::document/AWS-StartPortForwardingSessionToRemoteHost"
       ]
     },
     {
@@ -132,7 +132,7 @@
         "ssm:RemoveTagsFromResource",
         "ssm:ListTagsForResource"
       ],
-      "Resource": "arn:aws:ssm:us-east-2:242627333067:parameter/nasc/*"
+      "Resource": "arn:aws:ssm:${region}:${account_id}:parameter/nasc/*"
     },
     {
       "Sid": "ReadPublicAMIParameters",
@@ -143,9 +143,9 @@
         "ssm:GetParametersByPath"
       ],
       "Resource": [
-        "arn:aws:ssm:us-east-2::parameter/aws/service/ami-amazon-linux-latest/*",
-        "arn:aws:ssm:us-east-2::parameter/aws/service/canonical/ubuntu/*",
-        "arn:aws:ssm:us-east-2::parameter/aws/service/ami-windows-latest/*"
+        "arn:aws:ssm:${region}::parameter/aws/service/ami-amazon-linux-latest/*",
+        "arn:aws:ssm:${region}::parameter/aws/service/canonical/ubuntu/*",
+        "arn:aws:ssm:${region}::parameter/aws/service/ami-windows-latest/*"
       ]
     }
   ]

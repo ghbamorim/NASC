@@ -13,7 +13,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -45,7 +45,7 @@
         "lambda:DeleteFunctionEventInvokeConfig",
         "lambda:ListFunctionEventInvokeConfigs"
       ],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:function:nasc-*"
     },
     {
       "Sid": "ManageNASCFunctionCode",
@@ -55,7 +55,7 @@
         "lambda:UpdateFunctionConfiguration",
         "lambda:InvokeFunction"
       ],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:function:nasc-*"
     },
     {
       "Sid": "ManageNASCFunctionPermissions",
@@ -65,7 +65,7 @@
         "lambda:RemovePermission",
         "lambda:GetPolicy"
       ],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:function:nasc-*"
     },
     {
       "Sid": "ManageNASCFunctionUrls",
@@ -77,19 +77,19 @@
         "lambda:DeleteFunctionUrlConfig",
         "lambda:ListFunctionUrlConfigs"
       ],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:function:nasc-*"
     },
     {
       "Sid": "ManageNASCLayers",
       "Effect": "Allow",
       "Action": ["lambda:PublishLayerVersion", "lambda:ListLayerVersions"],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:layer:nasc-*"
     },
     {
       "Sid": "ManageNASCLayerVersions",
       "Effect": "Allow",
       "Action": ["lambda:GetLayerVersion", "lambda:DeleteLayerVersion"],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*:*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:layer:nasc-*:*"
     },
     {
       "Sid": "ManageNASCLayerPermissions",
@@ -99,7 +99,7 @@
         "lambda:RemoveLayerVersionPermission",
         "lambda:GetLayerVersionPolicy"
       ],
-      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*:*"
+      "Resource": "arn:aws:lambda:${region}:${account_id}:layer:nasc-*:*"
     }
   ]
 }

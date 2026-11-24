@@ -5,10 +5,10 @@
       "Sid": "CreateAttachmentsBucket",
       "Effect": "Allow",
       "Action": "s3:CreateBucket",
-      "Resource": "arn:aws:s3:::nasc-attachments-242627333067-*",
+      "Resource": "arn:aws:s3:::nasc-attachments-${account_id}-*",
       "Condition": {
         "StringEquals": {
-          "s3:LocationConstraint": "us-east-2"
+          "s3:LocationConstraint": "${region}"
         }
       }
     },
@@ -42,10 +42,10 @@
         "s3:PutEncryptionConfiguration",
         "s3:PutBucketVersioning"
       ],
-      "Resource": "arn:aws:s3:::nasc-attachments-242627333067-*",
+      "Resource": "arn:aws:s3:::nasc-attachments-${account_id}-*",
       "Condition": {
         "StringEquals": {
-          "s3:ResourceAccount": "242627333067"
+          "s3:ResourceAccount": "${account_id}"
         }
       }
     },
@@ -59,12 +59,12 @@
         "s3:DeleteObjectVersion"
       ],
       "Resource": [
-        "arn:aws:s3:::nasc-attachments-242627333067-*/*",
-        "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2/migrations/*"
+        "arn:aws:s3:::nasc-attachments-${account_id}-*/*",
+        "arn:aws:s3:::nasc-terraform-state-${account_id}-${region}/migrations/*"
       ],
       "Condition": {
         "StringEquals": {
-          "s3:ResourceAccount": "242627333067"
+          "s3:ResourceAccount": "${account_id}"
         }
       }
     },
@@ -72,7 +72,7 @@
       "Sid": "ListMigrationBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2",
+      "Resource": "arn:aws:s3:::nasc-terraform-state-${account_id}-${region}",
       "Condition": {
         "StringLike": {
           "s3:prefix": ["migrations", "migrations/*"]
@@ -98,10 +98,7 @@
     {
       "Sid": "CreateCloudFrontDistribution",
       "Effect": "Allow",
-      "Action": [
-        "cloudfront:CreateDistribution",
-        "cloudfront:CreateDistributionWithTags"
-      ],
+      "Action": ["cloudfront:CreateDistribution"],
       "Resource": "*"
     },
     {
@@ -116,7 +113,7 @@
         "cloudfront:UntagResource",
         "cloudfront:ListTagsForResource"
       ],
-      "Resource": "arn:aws:cloudfront::242627333067:distribution/*",
+      "Resource": "arn:aws:cloudfront::${account_id}:distribution/*",
       "Condition": {
         "StringEquals": {
           "aws:ResourceTag/Project": "NASC"
@@ -134,7 +131,7 @@
         "cloudfront:DeleteFunction",
         "cloudfront:UpdateFunction"
       ],
-      "Resource": "arn:aws:cloudfront::242627333067:function/nasc-*"
+      "Resource": "arn:aws:cloudfront::${account_id}:function/nasc-*"
     },
     {
       "Sid": "ManageCloudFrontKeyValueStores",
@@ -156,7 +153,7 @@
         "cloudfront-keyvaluestore:PutKey",
         "cloudfront-keyvaluestore:ListKeys"
       ],
-      "Resource": "arn:aws:cloudfront::242627333067:key-value-store/*"
+      "Resource": "arn:aws:cloudfront::${account_id}:key-value-store/*"
     },
     {
       "Sid": "ManageCloudFrontVpcOrigins",
@@ -183,7 +180,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -205,7 +202,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -219,7 +216,7 @@
         "elasticloadbalancing:AddTags",
         "elasticloadbalancing:RemoveTags"
       ],
-      "Resource": "arn:aws:elasticloadbalancing:us-east-2:242627333067:loadbalancer/app/nasc-*/*"
+      "Resource": "arn:aws:elasticloadbalancing:${region}:${account_id}:loadbalancer/app/nasc-*/*"
     },
     {
       "Sid": "ManageNASCTargetGroups",
@@ -234,7 +231,7 @@
         "elasticloadbalancing:AddTags",
         "elasticloadbalancing:RemoveTags"
       ],
-      "Resource": "arn:aws:elasticloadbalancing:us-east-2:242627333067:targetgroup/nasc-*/*"
+      "Resource": "arn:aws:elasticloadbalancing:${region}:${account_id}:targetgroup/nasc-*/*"
     },
     {
       "Sid": "ManageNASCListeners",
@@ -248,8 +245,8 @@
         "elasticloadbalancing:RemoveTags"
       ],
       "Resource": [
-        "arn:aws:elasticloadbalancing:us-east-2:242627333067:loadbalancer/app/nasc-*/*",
-        "arn:aws:elasticloadbalancing:us-east-2:242627333067:listener/app/nasc-*/*/*"
+        "arn:aws:elasticloadbalancing:${region}:${account_id}:loadbalancer/app/nasc-*/*",
+        "arn:aws:elasticloadbalancing:${region}:${account_id}:listener/app/nasc-*/*/*"
       ]
     }
   ]

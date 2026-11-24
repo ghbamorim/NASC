@@ -9,8 +9,13 @@ terraform {
   }
 }
 
+variable "aws_region" {
+  type    = string
+  default = "us-east-2"
+}
+
 provider "aws" {
-  region  = "us-east-2"
+  region  = var.aws_region
   profile = "terraform-admin"
 
   default_tags {
@@ -22,5 +27,4 @@ provider "aws" {
 }
 
 data "aws_caller_identity" "current" {}
-
 data "aws_region" "current" {}

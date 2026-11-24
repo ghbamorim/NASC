@@ -40,8 +40,15 @@ resource "aws_iam_user" "nasc_terraform" {
 resource "aws_iam_policy" "nasc_terraform_service" {
   for_each = local.policy_names
 
-  name   = "nasc-terraform-${each.key}-policy"
-  policy = file("${path.module}/policies/${each.key}.json")
+  name = "nasc-terraform-${each.key}-policy"
+
+  policy = templatefile(
+    "${path.module}/policies/${each.key}.json",
+    {
+      account_id = data.aws_caller_identity.current.account_id
+      region     = data.aws_region.current.region
+    }
+  )
 }
 
 resource "aws_iam_user_policy_attachment" "nasc_terraform_service" {

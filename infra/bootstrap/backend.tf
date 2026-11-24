@@ -1,9 +1,7 @@
-# terraform {
-#   backend "s3" {
-#     bucket       = "nasc-terraform-state-242627333067-us-east-2"
-#     key          = "bootstrap/terraform.tfstate"
-#     region       = "us-east-2"
-#     profile      = "terraform-admin"
-#     use_lockfile = true
-#   }
-# }
+terraform {
+  backend "s3" {
+    key          = "bootstrap/terraform.tfstate"
+    profile      = "terraform-admin"
+    use_lockfile = true
+  }
+}

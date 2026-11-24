@@ -8,7 +8,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -24,7 +24,7 @@
         "rds:RebootDBInstance",
         "rds:RestoreDBInstanceFromDBSnapshot"
       ],
-      "Resource": "arn:aws:rds:us-east-2:242627333067:db:nasc-dev-*"
+      "Resource": "arn:aws:rds:${region}:${account_id}:db:nasc-dev-*"
     },
     {
       "Sid": "ManageNASCDBSubnetGroups",
@@ -34,7 +34,7 @@
         "rds:ModifyDBSubnetGroup",
         "rds:DeleteDBSubnetGroup"
       ],
-      "Resource": "arn:aws:rds:us-east-2:242627333067:subgrp:nasc-dev-*"
+      "Resource": "arn:aws:rds:${region}:${account_id}:subgrp:nasc-dev-*"
     },
     {
       "Sid": "ManageNASCDBParameterGroups",
@@ -45,7 +45,7 @@
         "rds:ResetDBParameterGroup",
         "rds:DeleteDBParameterGroup"
       ],
-      "Resource": "arn:aws:rds:us-east-2:242627333067:pg:nasc-dev-*"
+      "Resource": "arn:aws:rds:${region}:${account_id}:pg:nasc-dev-*"
     },
     {
       "Sid": "ManageNASCDBSnapshots",
@@ -56,8 +56,8 @@
         "rds:RestoreDBInstanceFromDBSnapshot"
       ],
       "Resource": [
-        "arn:aws:rds:us-east-2:242627333067:db:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:snapshot:nasc-dev-*"
+        "arn:aws:rds:${region}:${account_id}:db:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:snapshot:nasc-dev-*"
       ]
     },
     {
@@ -69,9 +69,9 @@
         "rds:RestoreDBInstanceFromDBSnapshot"
       ],
       "Resource": [
-        "arn:aws:rds:us-east-2:242627333067:subgrp:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:pg:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:og:nasc-dev-*"
+        "arn:aws:rds:${region}:${account_id}:subgrp:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:pg:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:og:nasc-dev-*"
       ]
     },
     {
@@ -83,8 +83,8 @@
         "rds:RestoreDBInstanceFromDBSnapshot"
       ],
       "Resource": [
-        "arn:aws:rds:us-east-2:242627333067:pg:default.postgres*",
-        "arn:aws:rds:us-east-2:242627333067:og:default:postgres-*"
+        "arn:aws:rds:${region}:${account_id}:pg:default.postgres*",
+        "arn:aws:rds:${region}:${account_id}:og:default:postgres-*"
       ]
     },
     {
@@ -92,10 +92,10 @@
       "Effect": "Allow",
       "Action": ["rds:AddTagsToResource", "rds:RemoveTagsFromResource"],
       "Resource": [
-        "arn:aws:rds:us-east-2:242627333067:db:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:subgrp:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:pg:nasc-dev-*",
-        "arn:aws:rds:us-east-2:242627333067:snapshot:nasc-dev-*"
+        "arn:aws:rds:${region}:${account_id}:db:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:subgrp:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:pg:nasc-dev-*",
+        "arn:aws:rds:${region}:${account_id}:snapshot:nasc-dev-*"
       ]
     }
   ]

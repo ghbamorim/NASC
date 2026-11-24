@@ -8,7 +8,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -37,8 +37,8 @@
         "ecr:DescribeImageScanFindings"
       ],
       "Resource": [
-        "arn:aws:ecr:us-east-2:242627333067:repository/nasc-*",
-        "arn:aws:ecr:us-east-2:242627333067:repository/nasc/*"
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc-*",
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc/*"
       ]
     },
     {
@@ -54,8 +54,8 @@
         "ecr:PutImage"
       ],
       "Resource": [
-        "arn:aws:ecr:us-east-2:242627333067:repository/nasc-*",
-        "arn:aws:ecr:us-east-2:242627333067:repository/nasc/*"
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc-*",
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc/*"
       ]
     }
   ]

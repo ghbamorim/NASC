@@ -16,7 +16,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         }
       }
     },
@@ -38,10 +38,10 @@
         "logs:DescribeMetricFilters"
       ],
       "Resource": [
-        "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/rds/instance/nasc-*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/ec2/nasc-*"
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*"
       ]
     },
     {
@@ -53,10 +53,10 @@
         "logs:ListTagsForResource"
       ],
       "Resource": [
-        "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/rds/instance/nasc-*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/ec2/nasc-*"
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*"
       ]
     },
     {
@@ -64,10 +64,10 @@
       "Effect": "Allow",
       "Action": ["logs:GetLogEvents"],
       "Resource": [
-        "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/*:log-stream:*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-*:log-stream:*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/rds/instance/nasc-*:log-stream:*",
-        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/ec2/nasc-*:log-stream:*"
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*:log-stream:*"
       ]
     },
     {
@@ -82,7 +82,7 @@
         "cloudwatch:UntagResource",
         "cloudwatch:ListTagsForResource"
       ],
-      "Resource": "arn:aws:cloudwatch:us-east-2:242627333067:alarm:nasc-*"
+      "Resource": "arn:aws:cloudwatch:${region}:${account_id}:alarm:nasc-*"
     },
     {
       "Sid": "ManageNASCDashboards",
@@ -92,7 +92,7 @@
         "cloudwatch:GetDashboard",
         "cloudwatch:DeleteDashboards"
       ],
-      "Resource": "arn:aws:cloudwatch::242627333067:dashboard/nasc-*"
+      "Resource": "arn:aws:cloudwatch::${account_id}:dashboard/nasc-*"
     },
     {
       "Sid": "PublishNASCMetrics",
@@ -101,7 +101,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "aws:RequestedRegion": "${region}"
         },
         "StringLike": {
           "cloudwatch:namespace": ["NASC", "NASC/*"]
