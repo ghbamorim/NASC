@@ -11,7 +11,8 @@ locals {
     "ssm",
     "cloudwatch",
     "cloudwatch-composite",
-    "lambda"
+    "lambda",
+    "sqs"
   ])
 
   attached_policy_names = toset([
@@ -22,13 +23,15 @@ locals {
     "rds",
     "secrets",
     "ssm",
-    "cloudwatch"
+    "cloudwatch",
+    "sqs",
+    "lambda"
 
     # Future integrations requiring security review.
     # "ec2-integrations",
     # "ecr-sharing",
     # "cloudwatch-composite",
-    # "lambda"
+
   ])
 }
 
