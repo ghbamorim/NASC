@@ -2,17 +2,111 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ManageLambdaLogGroup",
+      "Sid": "ReadCloudWatch",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:DescribeAlarmHistory",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListDashboards"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "${region}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCLogGroups",
       "Effect": "Allow",
       "Action": [
         "logs:CreateLogGroup",
-        "logs:DescribeLogGroups",
-        "logs:PutRetentionPolicy",
         "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy",
+        "logs:TagLogGroup",
+        "logs:UntagLogGroup",
+        "logs:ListTagsLogGroup",
+        "logs:DescribeLogStreams",
+        "logs:FilterLogEvents",
+        "logs:PutMetricFilter",
+        "logs:DeleteMetricFilter",
+        "logs:DescribeMetricFilters"
+      ],
+      "Resource": [
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*"
+      ]
+    },
+    {
+      "Sid": "ManageNASCLogGroupTags",
+      "Effect": "Allow",
+      "Action": [
         "logs:TagResource",
+        "logs:UntagResource",
         "logs:ListTagsForResource"
       ],
-      "Resource": "*"
+      "Resource": [
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*"
+      ]
+    },
+    {
+      "Sid": "ReadNASCLogStreams",
+      "Effect": "Allow",
+      "Action": ["logs:GetLogEvents"],
+      "Resource": [
+        "arn:aws:logs:${region}:${account_id}:log-group:/nasc/*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/lambda/nasc-*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/rds/instance/nasc-*:log-stream:*",
+        "arn:aws:logs:${region}:${account_id}:log-group:/aws/ec2/nasc-*:log-stream:*"
+      ]
+    },
+    {
+      "Sid": "ManageNASCAlarms",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:EnableAlarmActions",
+        "cloudwatch:DisableAlarmActions",
+        "cloudwatch:TagResource",
+        "cloudwatch:UntagResource",
+        "cloudwatch:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:cloudwatch:${region}:${account_id}:alarm:nasc-*"
+    },
+    {
+      "Sid": "ManageNASCDashboards",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutDashboard",
+        "cloudwatch:GetDashboard",
+        "cloudwatch:DeleteDashboards"
+      ],
+      "Resource": "arn:aws:cloudwatch::${account_id}:dashboard/nasc-*"
+    },
+    {
+      "Sid": "PublishNASCMetrics",
+      "Effect": "Allow",
+      "Action": ["cloudwatch:PutMetricData"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "${region}"
+        },
+        "StringLike": {
+          "cloudwatch:namespace": ["NASC", "NASC/*"]
+        }
+      }
     }
   ]
 }

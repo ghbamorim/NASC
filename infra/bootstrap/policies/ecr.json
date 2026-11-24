@@ -2,7 +2,18 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ManageECR",
+      "Sid": "AuthenticateECR",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "${region}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCRepositories",
       "Effect": "Allow",
       "Action": [
         "ecr:CreateRepository",
@@ -16,13 +27,36 @@
         "ecr:PutLifecyclePolicy",
         "ecr:GetLifecyclePolicy",
         "ecr:DeleteLifecyclePolicy",
+        "ecr:GetLifecyclePolicyPreview",
+        "ecr:StartLifecyclePolicyPreview",
         "ecr:DescribeImages",
+        "ecr:ListImages",
         "ecr:BatchDeleteImage",
         "ecr:GetRepositoryPolicy",
-        "ecr:SetRepositoryPolicy",
-        "ecr:DeleteRepositoryPolicy"
+        "ecr:StartImageScan",
+        "ecr:DescribeImageScanFindings"
       ],
-      "Resource": ["arn:aws:ecr:us-east-2:242627333067:repository/gifff"]
+      "Resource": [
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc-*",
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc/*"
+      ]
+    },
+    {
+      "Sid": "PushAndPullNASCImages",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload",
+        "ecr:PutImage"
+      ],
+      "Resource": [
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc-*",
+        "arn:aws:ecr:${region}:${account_id}:repository/nasc/*"
+      ]
     }
   ]
 }
