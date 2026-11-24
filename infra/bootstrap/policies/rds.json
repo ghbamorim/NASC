@@ -5,7 +5,12 @@
       "Sid": "ReadRDS",
       "Effect": "Allow",
       "Action": ["rds:Describe*", "rds:ListTagsForResource"],
-      "Resource": "*"
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "us-east-2"
+        }
+      }
     },
     {
       "Sid": "ManageRDS",
@@ -14,16 +19,39 @@
         "rds:CreateDBInstance",
         "rds:ModifyDBInstance",
         "rds:DeleteDBInstance",
+        "rds:StartDBInstance",
+        "rds:StopDBInstance",
+        "rds:RebootDBInstance",
         "rds:AddTagsToResource",
         "rds:RemoveTagsFromResource",
         "rds:CreateDBSubnetGroup",
         "rds:ModifyDBSubnetGroup",
-        "rds:DeleteDBSubnetGroup"
+        "rds:DeleteDBSubnetGroup",
+        "rds:CreateDBParameterGroup",
+        "rds:ModifyDBParameterGroup",
+        "rds:ResetDBParameterGroup",
+        "rds:DeleteDBParameterGroup",
+        "rds:CreateDBSnapshot",
+        "rds:DeleteDBSnapshot",
+        "rds:RestoreDBInstanceFromDBSnapshot"
       ],
       "Resource": [
-        "arn:aws:rds:us-east-2:242627333067:db:gifff-postgres",
-        "arn:aws:rds:us-east-2:242627333067:subgrp:gifff-db-subnet-group"
+        "arn:aws:rds:us-east-2:242627333067:db:nasc-*",
+        "arn:aws:rds:us-east-2:242627333067:subgrp:nasc-*",
+        "arn:aws:rds:us-east-2:242627333067:pg:nasc-*",
+        "arn:aws:rds:us-east-2:242627333067:snapshot:nasc-*"
       ]
+    },
+    {
+      "Sid": "AllowRDSServiceLinkedRole",
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "arn:aws:iam::242627333067:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
+      "Condition": {
+        "StringEquals": {
+          "iam:AWSServiceName": "rds.amazonaws.com"
+        }
+      }
     }
   ]
 }
