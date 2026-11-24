@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from pydantic import Field
+from fastapi import APIRouter, Body, Depends
 
 from app.core.dependencies.channel_auth import verify_channel_api_key
 from app.core.dependencies.database import DbSession
@@ -16,10 +15,10 @@ router = APIRouter(prefix="/channel-messages", tags=["Channels"])
 )
 async def process_channel_message(
     db: DbSession,
-    channel: str = Field(min_length=1, max_length=30),
-    external_chat_id: str = Field(min_length=1, max_length=255),
-    external_message_id: str = Field(min_length=1, max_length=255),
-    message: str = Field(min_length=1),
+    channel: str = Body(min_length=1, max_length=30),
+    external_chat_id: str = Body(min_length=1, max_length=255),
+    external_message_id: str = Body(min_length=1, max_length=255),
+    message: str = Body(min_length=1),
 ) -> ChannelMessageResponse:
     service = ChannelMessageService(db)
 
