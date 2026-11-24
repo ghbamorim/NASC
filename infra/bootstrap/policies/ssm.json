@@ -46,18 +46,6 @@
       }
     },
     {
-      "Sid": "ManageOwnSessions",
-      "Effect": "Allow",
-      "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
-      "Resource": "arn:aws:ssm:${region}:${account_id}:session/$${aws:username}-*"
-    },
-    {
-      "Sid": "OpenOwnSessionDataChannel",
-      "Effect": "Allow",
-      "Action": ["ssmmessages:OpenDataChannel"],
-      "Resource": "arn:aws:ssm:${region}:${account_id}:session/$${aws:username}-*"
-    },
-    {
       "Sid": "ManageNASCDocuments",
       "Effect": "Allow",
       "Action": [
