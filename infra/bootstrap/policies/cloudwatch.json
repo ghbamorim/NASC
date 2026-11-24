@@ -28,9 +28,6 @@
         "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy",
         "logs:DeleteRetentionPolicy",
-        "logs:TagResource",
-        "logs:UntagResource",
-        "logs:ListTagsForResource",
         "logs:TagLogGroup",
         "logs:UntagLogGroup",
         "logs:ListTagsLogGroup",
@@ -39,6 +36,21 @@
         "logs:PutMetricFilter",
         "logs:DeleteMetricFilter",
         "logs:DescribeMetricFilters"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/*",
+        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/lambda/nasc-*",
+        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/rds/instance/nasc-*",
+        "arn:aws:logs:us-east-2:242627333067:log-group:/aws/ec2/nasc-*"
+      ]
+    },
+    {
+      "Sid": "ManageNASCLogGroupTags",
+      "Effect": "Allow",
+      "Action": [
+        "logs:TagResource",
+        "logs:UntagResource",
+        "logs:ListTagsForResource"
       ],
       "Resource": [
         "arn:aws:logs:us-east-2:242627333067:log-group:/nasc/*",
@@ -63,7 +75,6 @@
       "Effect": "Allow",
       "Action": [
         "cloudwatch:PutMetricAlarm",
-        "cloudwatch:PutCompositeAlarm",
         "cloudwatch:DeleteAlarms",
         "cloudwatch:EnableAlarmActions",
         "cloudwatch:DisableAlarmActions",

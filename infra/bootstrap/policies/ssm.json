@@ -29,7 +29,8 @@
       "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
       "Condition": {
         "StringEquals": {
-          "ssm:resourceTag/Project": "NASC"
+          "ssm:resourceTag/Project": "NASC",
+          "ssm:resourceTag/Environment": "dev"
         }
       }
     },
@@ -48,6 +49,12 @@
       "Sid": "ManageOwnSessions",
       "Effect": "Allow",
       "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
+      "Resource": "arn:aws:ssm:us-east-2:242627333067:session/${aws:username}-*"
+    },
+    {
+      "Sid": "OpenOwnSessionDataChannel",
+      "Effect": "Allow",
+      "Action": ["ssmmessages:OpenDataChannel"],
       "Resource": "arn:aws:ssm:us-east-2:242627333067:session/${aws:username}-*"
     },
     {
@@ -89,15 +96,23 @@
       "Sid": "UseAWSManagedCommandDocuments",
       "Effect": "Allow",
       "Action": ["ssm:SendCommand"],
-      "Resource": "arn:aws:ssm:us-east-2::document/AWS-*"
+      "Resource": [
+        "arn:aws:ssm:us-east-2::document/AWS-RunShellScript",
+        "arn:aws:ssm:us-east-2::document/AWS-RunPowerShellScript",
+        "arn:aws:ssm:us-east-2::document/AWS-UpdateSSMAgent",
+        "arn:aws:ssm:us-east-2::document/AWS-RunRemoteScript"
+      ]
     },
     {
-      "Sid": "UseSessionManagerDocument",
+      "Sid": "UseSessionManagerDocuments",
       "Effect": "Allow",
       "Action": ["ssm:StartSession", "ssm:GetDocument", "ssm:DescribeDocument"],
       "Resource": [
         "arn:aws:ssm:us-east-2:242627333067:document/SSM-SessionManagerRunShell",
-        "arn:aws:ssm:us-east-2::document/SSM-SessionManagerRunShell"
+        "arn:aws:ssm:us-east-2::document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:us-east-2::document/AWS-StartInteractiveCommand",
+        "arn:aws:ssm:us-east-2::document/AWS-StartPortForwardingSession",
+        "arn:aws:ssm:us-east-2::document/AWS-StartPortForwardingSessionToRemoteHost"
       ]
     },
     {
@@ -118,6 +133,20 @@
         "ssm:ListTagsForResource"
       ],
       "Resource": "arn:aws:ssm:us-east-2:242627333067:parameter/nasc/*"
+    },
+    {
+      "Sid": "ReadPublicAMIParameters",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": [
+        "arn:aws:ssm:us-east-2::parameter/aws/service/ami-amazon-linux-latest/*",
+        "arn:aws:ssm:us-east-2::parameter/aws/service/canonical/ubuntu/*",
+        "arn:aws:ssm:us-east-2::parameter/aws/service/ami-windows-latest/*"
+      ]
     }
   ]
 }

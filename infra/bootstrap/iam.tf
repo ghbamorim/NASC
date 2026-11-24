@@ -4,24 +4,30 @@ locals {
     "ec2",
     "ec2-integrations",
     "ecr",
+    "ecr-sharing",
     "iam",
     "rds",
     "secrets",
     "ssm",
     "cloudwatch",
+    "cloudwatch-composite",
     "lambda"
   ])
 
   attached_policy_names = toset([
     "backend",
     "ec2",
-    "ec2-integrations",
     "ecr",
     "iam",
     "rds",
     "secrets",
     "ssm",
-    "cloudwatch",
+    "cloudwatch"
+
+    # Future integrations requiring security review.
+    # "ec2-integrations",
+    # "ecr-sharing",
+    # "cloudwatch-composite",
     # "lambda"
   ])
 }

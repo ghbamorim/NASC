@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ManageNASCRepositoryPolicies",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetRepositoryPolicy",
+        "ecr:SetRepositoryPolicy",
+        "ecr:DeleteRepositoryPolicy"
+      ],
+      "Resource": [
+        "arn:aws:ecr:us-east-2:242627333067:repository/nasc-*",
+        "arn:aws:ecr:us-east-2:242627333067:repository/nasc/*"
+      ]
+    }
+  ]
+}

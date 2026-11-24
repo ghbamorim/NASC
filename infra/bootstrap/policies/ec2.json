@@ -17,28 +17,132 @@
       }
     },
     {
-      "Sid": "ManageEC2AndNetwork",
+      "Sid": "CreateTaggedNASCResources",
       "Effect": "Allow",
       "Action": [
-        "ec2:RunInstances",
+        "ec2:CreateVpc",
+        "ec2:CreateSubnet",
+        "ec2:CreateInternetGateway",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateVolume",
+        "ec2:AllocateAddress",
+        "ec2:RunInstances"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
+        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
+        "arn:aws:ec2:us-east-2:242627333067:internet-gateway/*",
+        "arn:aws:ec2:us-east-2:242627333067:route-table/*",
+        "arn:aws:ec2:us-east-2:242627333067:security-group/*",
+        "arn:aws:ec2:us-east-2:242627333067:volume/*",
+        "arn:aws:ec2:us-east-2:242627333067:elastic-ip/*",
+        "arn:aws:ec2:us-east-2:242627333067:instance/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "UseNASCNetworkResources",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateSubnet",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:RunInstances"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
+        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
+        "arn:aws:ec2:us-east-2:242627333067:security-group/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "RunInstancesWithSupportingResources",
+      "Effect": "Allow",
+      "Action": ["ec2:RunInstances"],
+      "Resource": [
+        "arn:aws:ec2:us-east-2::image/*",
+        "arn:aws:ec2:us-east-2::snapshot/*",
+        "arn:aws:ec2:us-east-2:242627333067:network-interface/*"
+      ]
+    },
+    {
+      "Sid": "TagResourcesDuringCreation",
+      "Effect": "Allow",
+      "Action": ["ec2:CreateTags"],
+      "Resource": "arn:aws:ec2:us-east-2:242627333067:*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": [
+            "CreateVpc",
+            "CreateSubnet",
+            "CreateInternetGateway",
+            "CreateRouteTable",
+            "CreateSecurityGroup",
+            "CreateVolume",
+            "AllocateAddress",
+            "RunInstances"
+          ],
+          "aws:RequestTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "ManageExistingNASCTags",
+      "Effect": "Allow",
+      "Action": ["ec2:CreateTags", "ec2:DeleteTags"],
+      "Resource": "arn:aws:ec2:us-east-2:242627333067:*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC"
+        },
+        "ForAllValues:StringNotEqualsIgnoreCase": {
+          "aws:TagKeys": ["Project"]
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCInstances",
+      "Effect": "Allow",
+      "Action": [
         "ec2:TerminateInstances",
         "ec2:StartInstances",
         "ec2:StopInstances",
+        "ec2:RebootInstances",
         "ec2:ModifyInstanceAttribute",
         "ec2:ModifyInstanceCreditSpecification",
-        "ec2:CreateTags",
-        "ec2:DeleteTags",
-        "ec2:CreateVpc",
+        "ec2:ModifyInstanceMetadataOptions",
+        "ec2:AssociateIamInstanceProfile",
+        "ec2:DisassociateIamInstanceProfile",
+        "ec2:ReplaceIamInstanceProfileAssociation"
+      ],
+      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCNetwork",
+      "Effect": "Allow",
+      "Action": [
         "ec2:DeleteVpc",
         "ec2:ModifyVpcAttribute",
-        "ec2:CreateSubnet",
         "ec2:DeleteSubnet",
         "ec2:ModifySubnetAttribute",
-        "ec2:CreateInternetGateway",
         "ec2:DeleteInternetGateway",
         "ec2:AttachInternetGateway",
         "ec2:DetachInternetGateway",
-        "ec2:CreateRouteTable",
         "ec2:DeleteRouteTable",
         "ec2:CreateRoute",
         "ec2:ReplaceRoute",
@@ -46,30 +150,61 @@
         "ec2:AssociateRouteTable",
         "ec2:DisassociateRouteTable",
         "ec2:ReplaceRouteTableAssociation",
-        "ec2:CreateSecurityGroup",
         "ec2:DeleteSecurityGroup",
         "ec2:AuthorizeSecurityGroupIngress",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:RevokeSecurityGroupIngress",
         "ec2:RevokeSecurityGroupEgress",
-        "ec2:ModifySecurityGroupRules",
-        "ec2:CreateVolume",
+        "ec2:ModifySecurityGroupRules"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-2:242627333067:vpc/*",
+        "arn:aws:ec2:us-east-2:242627333067:subnet/*",
+        "arn:aws:ec2:us-east-2:242627333067:internet-gateway/*",
+        "arn:aws:ec2:us-east-2:242627333067:route-table/*",
+        "arn:aws:ec2:us-east-2:242627333067:security-group/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCVolumes",
+      "Effect": "Allow",
+      "Action": [
         "ec2:DeleteVolume",
         "ec2:AttachVolume",
         "ec2:DetachVolume",
-        "ec2:ModifyVolume",
-        "ec2:AllocateAddress",
-        "ec2:AssociateAddress",
-        "ec2:DisassociateAddress",
-        "ec2:ReleaseAddress",
-        "ec2:AssociateIamInstanceProfile",
-        "ec2:DisassociateIamInstanceProfile",
-        "ec2:ReplaceIamInstanceProfileAssociation"
+        "ec2:ModifyVolume"
       ],
-      "Resource": "*",
+      "Resource": [
+        "arn:aws:ec2:us-east-2:242627333067:volume/*",
+        "arn:aws:ec2:us-east-2:242627333067:instance/*"
+      ],
       "Condition": {
         "StringEquals": {
-          "aws:RequestedRegion": "us-east-2"
+          "ec2:ResourceTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCAddresses",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AssociateAddress",
+        "ec2:DisassociateAddress",
+        "ec2:ReleaseAddress"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-2:242627333067:elastic-ip/*",
+        "arn:aws:ec2:us-east-2:242627333067:instance/*",
+        "arn:aws:ec2:us-east-2:242627333067:network-interface/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC"
         }
       }
     },
@@ -81,6 +216,20 @@
       "Condition": {
         "StringNotEquals": {
           "ec2:InstanceType": ["t3.micro", "t3.small"]
+        }
+      }
+    },
+    {
+      "Sid": "RestrictInstanceTypeModification",
+      "Effect": "Deny",
+      "Action": ["ec2:ModifyInstanceAttribute"],
+      "Resource": "arn:aws:ec2:us-east-2:242627333067:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:Attribute": "instanceType"
+        },
+        "StringNotEquals": {
+          "ec2:Attribute/InstanceType": ["t3.micro", "t3.small"]
         }
       }
     }

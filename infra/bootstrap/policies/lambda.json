@@ -24,13 +24,10 @@
         "lambda:CreateFunction",
         "lambda:GetFunction",
         "lambda:GetFunctionConfiguration",
-        "lambda:UpdateFunctionCode",
-        "lambda:UpdateFunctionConfiguration",
         "lambda:DeleteFunction",
         "lambda:TagResource",
         "lambda:UntagResource",
         "lambda:ListTags",
-        "lambda:InvokeFunction",
         "lambda:ListVersionsByFunction",
         "lambda:GetFunctionCodeSigningConfig",
         "lambda:PublishVersion",
@@ -39,9 +36,6 @@
         "lambda:UpdateAlias",
         "lambda:DeleteAlias",
         "lambda:ListAliases",
-        "lambda:AddPermission",
-        "lambda:RemovePermission",
-        "lambda:GetPolicy",
         "lambda:PutFunctionConcurrency",
         "lambda:GetFunctionConcurrency",
         "lambda:DeleteFunctionConcurrency",
@@ -49,29 +43,63 @@
         "lambda:GetFunctionEventInvokeConfig",
         "lambda:UpdateFunctionEventInvokeConfig",
         "lambda:DeleteFunctionEventInvokeConfig",
-        "lambda:ListFunctionEventInvokeConfigs",
-        "lambda:PutFunctionUrlConfig",
+        "lambda:ListFunctionEventInvokeConfigs"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+    },
+    {
+      "Sid": "ManageNASCFunctionCode",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+    },
+    {
+      "Sid": "ManageNASCFunctionPermissions",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:RemovePermission",
+        "lambda:GetPolicy"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
+    },
+    {
+      "Sid": "ManageNASCFunctionUrls",
+      "Effect": "Allow",
+      "Action": [
         "lambda:CreateFunctionUrlConfig",
         "lambda:GetFunctionUrlConfig",
         "lambda:UpdateFunctionUrlConfig",
         "lambda:DeleteFunctionUrlConfig",
         "lambda:ListFunctionUrlConfigs"
       ],
-      "Resource": ["arn:aws:lambda:us-east-2:242627333067:function:nasc-*"]
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:function:nasc-*"
     },
     {
       "Sid": "ManageNASCLayers",
       "Effect": "Allow",
+      "Action": ["lambda:PublishLayerVersion", "lambda:ListLayerVersions"],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*"
+    },
+    {
+      "Sid": "ManageNASCLayerVersions",
+      "Effect": "Allow",
+      "Action": ["lambda:GetLayerVersion", "lambda:DeleteLayerVersion"],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*:*"
+    },
+    {
+      "Sid": "ManageNASCLayerPermissions",
+      "Effect": "Allow",
       "Action": [
-        "lambda:PublishLayerVersion",
-        "lambda:GetLayerVersion",
-        "lambda:DeleteLayerVersion",
-        "lambda:ListLayerVersions",
         "lambda:AddLayerVersionPermission",
         "lambda:RemoveLayerVersionPermission",
         "lambda:GetLayerVersionPolicy"
       ],
-      "Resource": ["arn:aws:lambda:us-east-2:242627333067:layer:nasc-*"]
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:layer:nasc-*:*"
     }
   ]
 }

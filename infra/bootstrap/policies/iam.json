@@ -2,31 +2,47 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ReadIAM",
+      "Sid": "ListIAMResources",
+      "Effect": "Allow",
+      "Action": ["iam:ListRoles", "iam:ListInstanceProfiles"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadNASCRoles",
       "Effect": "Allow",
       "Action": [
         "iam:GetRole",
-        "iam:ListRoles",
-        "iam:GetInstanceProfile",
-        "iam:ListInstanceProfiles",
         "iam:ListInstanceProfilesForRole",
-        "iam:GetPolicy",
-        "iam:GetPolicyVersion",
-        "iam:ListPolicyVersions",
         "iam:ListAttachedRolePolicies",
         "iam:ListRolePolicies",
         "iam:GetRolePolicy"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:iam::242627333067:role/nasc-*"
     },
     {
-      "Sid": "PassEC2Role",
+      "Sid": "ReadNASCInstanceProfiles",
+      "Effect": "Allow",
+      "Action": ["iam:GetInstanceProfile"],
+      "Resource": "arn:aws:iam::242627333067:instance-profile/nasc-*"
+    },
+    {
+      "Sid": "ReadNASCPolicies",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions"
+      ],
+      "Resource": [
+        "arn:aws:iam::242627333067:policy/nasc-*",
+        "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      ]
+    },
+    {
+      "Sid": "PassDevEC2Role",
       "Effect": "Allow",
       "Action": ["iam:PassRole"],
-      "Resource": [
-        "arn:aws:iam::242627333067:role/nasc-dev-ec2-role",
-        "arn:aws:iam::242627333067:role/nasc-prod-ec2-role"
-      ],
+      "Resource": "arn:aws:iam::242627333067:role/nasc-dev-ec2-role",
       "Condition": {
         "StringEquals": {
           "iam:PassedToService": "ec2.amazonaws.com"

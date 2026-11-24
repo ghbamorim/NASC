@@ -2,23 +2,31 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "CreateAttachmentsBucket",
+      "Effect": "Allow",
+      "Action": "s3:CreateBucket",
+      "Resource": "arn:aws:s3:::nasc-attachments-242627333067-*",
+      "Condition": {
+        "StringEquals": {
+          "s3:LocationConstraint": "us-east-2"
+        }
+      }
+    },
+    {
       "Sid": "ManageAttachmentsBucket",
       "Effect": "Allow",
       "Action": [
-        "s3:CreateBucket",
         "s3:DeleteBucket",
         "s3:GetBucketLocation",
         "s3:ListBucket",
         "s3:GetBucketTagging",
         "s3:PutBucketTagging",
-        "s3:DeleteBucketTagging",
         "s3:GetBucketPolicy",
         "s3:PutBucketPolicy",
         "s3:DeleteBucketPolicy",
         "s3:GetBucketAcl",
         "s3:GetBucketPublicAccessBlock",
         "s3:PutBucketPublicAccessBlock",
-        "s3:DeleteBucketPublicAccessBlock",
         "s3:GetBucketVersioning",
         "s3:ListBucketVersions",
         "s3:GetBucketWebsite",
@@ -34,7 +42,12 @@
         "s3:PutEncryptionConfiguration",
         "s3:PutBucketVersioning"
       ],
-      "Resource": "arn:aws:s3:::nasc-attachments-*"
+      "Resource": "arn:aws:s3:::nasc-attachments-242627333067-*",
+      "Condition": {
+        "StringEquals": {
+          "s3:ResourceAccount": "242627333067"
+        }
+      }
     },
     {
       "Sid": "ManageAttachmentsObjects",
@@ -46,14 +59,19 @@
         "s3:DeleteObjectVersion"
       ],
       "Resource": [
-        "arn:aws:s3:::nasc-attachments-*/*",
+        "arn:aws:s3:::nasc-attachments-242627333067-*/*",
         "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2/migrations/*"
-      ]
+      ],
+      "Condition": {
+        "StringEquals": {
+          "s3:ResourceAccount": "242627333067"
+        }
+      }
     },
     {
       "Sid": "ListMigrationBucket",
       "Effect": "Allow",
-      "Action": ["s3:ListBucket"],
+      "Action": "s3:ListBucket",
       "Resource": "arn:aws:s3:::nasc-terraform-state-242627333067-us-east-2",
       "Condition": {
         "StringLike": {
@@ -62,36 +80,83 @@
       }
     },
     {
-      "Sid": "ManageCloudFront",
+      "Sid": "ListCloudFrontResources",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:ListDistributions",
+        "cloudfront:ListCachePolicies",
+        "cloudfront:ListVpcOrigins"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadCloudFrontCachePolicies",
+      "Effect": "Allow",
+      "Action": "cloudfront:GetCachePolicy",
+      "Resource": "*"
+    },
+    {
+      "Sid": "CreateCloudFrontDistribution",
       "Effect": "Allow",
       "Action": [
         "cloudfront:CreateDistribution",
+        "cloudfront:CreateDistributionWithTags"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ManageNASCDistributions",
+      "Effect": "Allow",
+      "Action": [
         "cloudfront:GetDistribution",
         "cloudfront:GetDistributionConfig",
-        "cloudfront:ListDistributions",
         "cloudfront:UpdateDistribution",
         "cloudfront:DeleteDistribution",
         "cloudfront:TagResource",
         "cloudfront:UntagResource",
-        "cloudfront:ListTagsForResource",
-        "cloudfront:ListCachePolicies",
-        "cloudfront:GetCachePolicy",
-        "cloudfront:CreateKeyValueStore",
-        "cloudfront:DescribeKeyValueStore",
-        "cloudfront:UpdateKeyValueStore",
-        "cloudfront:DeleteKeyValueStore",
+        "cloudfront:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:cloudfront::242627333067:distribution/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "NASC"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCCloudFrontFunctions",
+      "Effect": "Allow",
+      "Action": [
         "cloudfront:CreateFunction",
         "cloudfront:PublishFunction",
         "cloudfront:DescribeFunction",
-        "cloudfront-keyvaluestore:DescribeKeyValueStore",
-        "cloudfront-keyvaluestore:GetKey",
-        "cloudfront-keyvaluestore:PutKey",
-        "cloudfront-keyvaluestore:ListKeys",
         "cloudfront:GetFunction",
         "cloudfront:DeleteFunction",
         "cloudfront:UpdateFunction"
       ],
+      "Resource": "arn:aws:cloudfront::242627333067:function/nasc-*"
+    },
+    {
+      "Sid": "ManageCloudFrontKeyValueStores",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateKeyValueStore",
+        "cloudfront:DescribeKeyValueStore",
+        "cloudfront:UpdateKeyValueStore",
+        "cloudfront:DeleteKeyValueStore"
+      ],
       "Resource": "*"
+    },
+    {
+      "Sid": "ManageCloudFrontKeyValues",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront-keyvaluestore:DescribeKeyValueStore",
+        "cloudfront-keyvaluestore:GetKey",
+        "cloudfront-keyvaluestore:PutKey",
+        "cloudfront-keyvaluestore:ListKeys"
+      ],
+      "Resource": "arn:aws:cloudfront::242627333067:key-value-store/*"
     },
     {
       "Sid": "ManageCloudFrontVpcOrigins",
@@ -99,7 +164,6 @@
       "Action": [
         "cloudfront:CreateVpcOrigin",
         "cloudfront:GetVpcOrigin",
-        "cloudfront:ListVpcOrigins",
         "cloudfront:UpdateVpcOrigin",
         "cloudfront:DeleteVpcOrigin"
       ],
@@ -124,43 +188,17 @@
       }
     },
     {
-      "Sid": "AllowCloudFrontServiceLinkedRole",
-      "Effect": "Allow",
-      "Action": "iam:CreateServiceLinkedRole",
-      "Resource": "arn:aws:iam::242627333067:role/aws-service-role/vpcorigin.cloudfront.amazonaws.com/AWSServiceRoleForCloudFrontVPCOrigin*",
-      "Condition": {
-        "StringEquals": {
-          "iam:AWSServiceName": "vpcorigin.cloudfront.amazonaws.com"
-        }
-      }
-    },
-    {
-      "Sid": "ManageApplicationLoadBalancer",
+      "Sid": "ReadLoadBalancers",
       "Effect": "Allow",
       "Action": [
-        "elasticloadbalancing:CreateLoadBalancer",
-        "elasticloadbalancing:DeleteLoadBalancer",
         "elasticloadbalancing:DescribeLoadBalancers",
-        "elasticloadbalancing:ModifyLoadBalancerAttributes",
         "elasticloadbalancing:DescribeLoadBalancerAttributes",
         "elasticloadbalancing:DescribeTags",
-        "elasticloadbalancing:AddTags",
-        "elasticloadbalancing:RemoveTags",
-        "elasticloadbalancing:CreateTargetGroup",
-        "elasticloadbalancing:DeleteTargetGroup",
         "elasticloadbalancing:DescribeTargetGroups",
-        "elasticloadbalancing:ModifyTargetGroup",
-        "elasticloadbalancing:ModifyTargetGroupAttributes",
         "elasticloadbalancing:DescribeTargetGroupAttributes",
-        "elasticloadbalancing:RegisterTargets",
-        "elasticloadbalancing:DeregisterTargets",
         "elasticloadbalancing:DescribeTargetHealth",
-        "elasticloadbalancing:CreateListener",
-        "elasticloadbalancing:DeleteListener",
         "elasticloadbalancing:DescribeListeners",
-        "elasticloadbalancing:ModifyListener",
         "elasticloadbalancing:DescribeListenerAttributes",
-        "elasticloadbalancing:ModifyListenerAttributes",
         "elasticloadbalancing:DescribeRules",
         "elasticloadbalancing:DescribeAccountLimits"
       ],
@@ -172,15 +210,47 @@
       }
     },
     {
-      "Sid": "AllowALBServiceLinkedRole",
+      "Sid": "ManageNASCLoadBalancers",
       "Effect": "Allow",
-      "Action": "iam:CreateServiceLinkedRole",
-      "Resource": "arn:aws:iam::242627333067:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing",
-      "Condition": {
-        "StringEquals": {
-          "iam:AWSServiceName": "elasticloadbalancing.amazonaws.com"
-        }
-      }
+      "Action": [
+        "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:ModifyLoadBalancerAttributes",
+        "elasticloadbalancing:AddTags",
+        "elasticloadbalancing:RemoveTags"
+      ],
+      "Resource": "arn:aws:elasticloadbalancing:us-east-2:242627333067:loadbalancer/app/nasc-*/*"
+    },
+    {
+      "Sid": "ManageNASCTargetGroups",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:CreateTargetGroup",
+        "elasticloadbalancing:DeleteTargetGroup",
+        "elasticloadbalancing:ModifyTargetGroup",
+        "elasticloadbalancing:ModifyTargetGroupAttributes",
+        "elasticloadbalancing:RegisterTargets",
+        "elasticloadbalancing:DeregisterTargets",
+        "elasticloadbalancing:AddTags",
+        "elasticloadbalancing:RemoveTags"
+      ],
+      "Resource": "arn:aws:elasticloadbalancing:us-east-2:242627333067:targetgroup/nasc-*/*"
+    },
+    {
+      "Sid": "ManageNASCListeners",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:CreateListener",
+        "elasticloadbalancing:DeleteListener",
+        "elasticloadbalancing:ModifyListener",
+        "elasticloadbalancing:ModifyListenerAttributes",
+        "elasticloadbalancing:AddTags",
+        "elasticloadbalancing:RemoveTags"
+      ],
+      "Resource": [
+        "arn:aws:elasticloadbalancing:us-east-2:242627333067:loadbalancer/app/nasc-*/*",
+        "arn:aws:elasticloadbalancing:us-east-2:242627333067:listener/app/nasc-*/*/*"
+      ]
     }
   ]
 }
