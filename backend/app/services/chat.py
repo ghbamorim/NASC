@@ -23,8 +23,20 @@ class ChatService:
         self.repository = conversation_repository or ConversationRepository(db)
 
     async def chat(
-        self, message: str, conversation_id: UUID | None = None
+        self,
+        message: str,
+        conversation_id: UUID | None = None,
+        external_message_id: str | None = None,
     ) -> tuple[UUID, str]:
+        if conversation_id is not None and external_message_id is not None:
+            existing_response = await self.repository.get_existing_response(
+                conversation_id=conversation_id,
+                external_message_id=external_message_id,
+            )
+
+            if existing_response is not None:
+                return conversation_id, existing_response
+
         history: list[ModelMessage] = []
 
         if conversation_id is None:
@@ -47,7 +59,16 @@ class ChatService:
 
         result = await nasc_agent.run(message, message_history=history)
 
-        await self.repository.add_message(conversation.id, "user", message)
-        await self.repository.add_message(conversation.id, "assistant", result.output)
+        await self.repository.add_message(
+            conversation.id,
+            "user",
+            message,
+            external_message_id=external_message_id,
+        )
+        await self.repository.add_message(
+            conversation.id,
+            "assistant",
+            result.output,
+        )
 
         return conversation.id, result.output

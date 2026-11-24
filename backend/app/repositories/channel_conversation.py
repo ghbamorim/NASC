@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.channel_conversation import ChannelConversation
@@ -38,3 +38,14 @@ class ChannelConversationRepository:
         await self.db.flush()
 
         return mapping
+
+    async def lock(
+        self,
+        channel: str,
+        external_chat_id: str,
+    ) -> None:
+        key = f"{channel}:{external_chat_id}"
+
+        await self.db.execute(
+            select(func.pg_advisory_xact_lock(func.hashtextextended(key, 0)))
+        )
