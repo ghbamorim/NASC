@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   deploy:
+    name: Build and Deploy to EC2
     runs-on: ubuntu-latest
     environment: dev
 
@@ -69,6 +70,24 @@ jobs:
 
           echo "INSTANCE_ID=$INSTANCE_ID" >> "$GITHUB_ENV"
           echo "DB_HOST=$DB_HOST" >> "$GITHUB_ENV"
+
+      - name: Wait for SSM agent
+        run: |
+          for ((attempt=0; attempt<60; attempt++)); do
+            STATUS=$(aws ssm describe-instance-information \
+              --filters "Key=InstanceIds,Values=$INSTANCE_ID" \
+              --query 'InstanceInformationList[0].PingStatus' \
+              --output text)
+
+            if [[ "$STATUS" == "Online" ]]; then
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "SSM agent did not become available." >&2
+          exit 1
 
       - name: Deploy to EC2
         run: |
