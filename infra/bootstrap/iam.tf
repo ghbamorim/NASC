@@ -52,7 +52,7 @@ resource "aws_iam_role" "nasc_terraform" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-            "token.actions.githubusercontent.com:sub" = "repo:ghbamorim/NASC:environment:dev"
+            "token.actions.githubusercontent.com:sub" = "repo:ghbamorim@79848031/NASC@1455266988:environment:dev"
           }
         }
       }

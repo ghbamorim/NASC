@@ -32,14 +32,35 @@ resource "aws_instance" "main" {
     delete_on_termination = true
   }
 
+  user_data_replace_on_change = true
+
   user_data = <<-EOF
     #!/bin/bash
-    set -e
+    set -euo pipefail
 
     dnf install -y docker
+
     systemctl enable --now docker
     systemctl enable --now amazon-ssm-agent
+
     usermod -aG docker ec2-user
+
+    install -d /usr/local/lib/docker/cli-plugins
+
+    curl -fsSL --retry 3 \
+      https://github.com/docker/compose/releases/download/v5.6.0/docker-compose-linux-x86_64 \
+      -o /usr/local/lib/docker/cli-plugins/docker-compose
+
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+    install -d -m 700 /opt/nasc
+
+    docker --version
+    docker compose version
+    aws --version
+    curl --version
+    jq --version
+    python3 --version
   EOF
 
   tags = {

@@ -1,0 +1,59 @@
+name: Development
+
+run-name: "Development | ${{ github.event.head_commit.message }}"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infra/dev/**"
+      - "backend/**"
+      - "deploy/dev/**"
+      - ".github/workflows/dev.yml"
+      - ".github/workflows/terraform-dev.yml"
+      - ".github/workflows/deploy-dev.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: development
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            terraform:
+              - 'infra/dev/**'
+              - '.github/workflows/terraform-dev.yml'
+
+  terraform:
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true'
+    uses: ./.github/workflows/terraform-dev.yml
+
+  deploy:
+    needs: [changes, terraform]
+    if: |
+      always() &&
+      needs.changes.result == 'success' &&
+      (
+        needs.terraform.result == 'success' ||
+        needs.terraform.result == 'skipped'
+      )
+    uses: ./.github/workflows/deploy-dev.yml
