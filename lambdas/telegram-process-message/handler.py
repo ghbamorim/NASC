@@ -28,7 +28,7 @@ def process_message(payload: dict) -> dict:
         method="POST",
     )
 
-    with urlopen(request, timeout=60) as response:
+    with urlopen(request, timeout=120) as response:
         return json.load(response)
 
 def publish_response(payload: dict, response: dict) -> None:

@@ -17,6 +17,7 @@ export AWS_DEFAULT_REGION="${1:?AWS region is required}"
 export BACKEND_IMAGE="${2:?Backend image is required}"
 export DB_HOST="${3:?Database host is required}"
 export GEMINI_MODEL="${4:?Gemini model is required}"
+export GEMINI_FALLBACK_MODELS="${5:?Gemini fallback models are required}"
 
 REGISTRY="${BACKEND_IMAGE%%/*}"
 

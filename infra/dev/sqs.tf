@@ -3,7 +3,7 @@ resource "aws_sqs_queue" "telegram_inbound" {
   fifo_queue                  = true
   content_based_deduplication = false
 
-  visibility_timeout_seconds = 720
+  visibility_timeout_seconds = 900
   message_retention_seconds  = 345600
   sqs_managed_sse_enabled    = true
 
