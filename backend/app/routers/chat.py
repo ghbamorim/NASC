@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.core.auth import CurrentUser
 from app.core.dependencies.database import DbSession
 from app.services.chat import ChatService
 
@@ -20,11 +21,16 @@ class ChatResponse(BaseModel):
 
 
 @router.post("", response_model=ChatResponse)
-async def chat(request: ChatRequest, db: DbSession) -> ChatResponse:
+async def chat(
+    request: ChatRequest,
+    db: DbSession,
+    user: CurrentUser,
+) -> ChatResponse:
     service = ChatService(db)
 
     try:
         conversation_id, response = await service.chat(
+            user_id=user.id,
             message=request.message,
             conversation_id=request.conversation_id,
         )

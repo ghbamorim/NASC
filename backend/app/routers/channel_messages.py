@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Depends
 
 from app.core.dependencies.channel_auth import verify_channel_api_key
 from app.core.dependencies.database import DbSession
-from app.schemas.channel_messages import ChannelMessageResponse
+from app.schemas.channel_messages import (
+    ChannelMessageRequest,
+    ChannelMessageResponse,
+)
 from app.services.channel_message import ChannelMessageService
 
 router = APIRouter(prefix="/channel-messages", tags=["Channels"])
@@ -15,18 +18,17 @@ router = APIRouter(prefix="/channel-messages", tags=["Channels"])
 )
 async def process_channel_message(
     db: DbSession,
-    channel: str = Body(min_length=1, max_length=30),
-    external_chat_id: str = Body(min_length=1, max_length=255),
-    external_message_id: str = Body(min_length=1, max_length=255),
-    message: str = Body(min_length=1),
+    data: ChannelMessageRequest,
 ) -> ChannelMessageResponse:
     service = ChannelMessageService(db)
 
     conversation_id, response = await service.process(
-        channel=channel,
-        external_chat_id=external_chat_id,
-        external_message_id=external_message_id,
-        message=message,
+        channel=data.channel,
+        external_user_id=data.external_user_id,
+        external_chat_id=data.external_chat_id,
+        external_message_id=data.external_message_id,
+        message_date=data.message_date,
+        message=data.message,
     )
 
     return ChannelMessageResponse(
