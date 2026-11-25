@@ -23,8 +23,8 @@ engine = create_async_engine(
     pool_size=settings.database_pool_size,
     max_overflow=settings.database_pool_max_overflow,
     echo_pool=settings.database_echo_pool,
+    hide_parameters=True,
 )
-
 
 pool = engine.sync_engine.pool
 assert isinstance(pool, QueuePool)

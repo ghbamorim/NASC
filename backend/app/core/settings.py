@@ -26,6 +26,8 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str
     channel_api_key: SecretStr
+    telegram_bot_username: str
+    channel_link_token_expire_minutes: int = 10
 
     gemini_api_key: str
     gemini_model: str

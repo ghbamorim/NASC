@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.channel_conversation import ChannelConversation
@@ -12,11 +12,11 @@ class ChannelConversationRepository:
 
     async def get_conversation_id(
         self,
-        channel: str,
+        channel_user_id: UUID,
         external_chat_id: str,
     ) -> UUID | None:
         statement = select(ChannelConversation.conversation_id).where(
-            ChannelConversation.channel == channel,
+            ChannelConversation.channel_user_id == channel_user_id,
             ChannelConversation.external_chat_id == external_chat_id,
         )
 
@@ -24,12 +24,12 @@ class ChannelConversationRepository:
 
     async def create(
         self,
-        channel: str,
+        channel_user_id: UUID,
         external_chat_id: str,
         conversation_id: UUID,
     ) -> ChannelConversation:
         mapping = ChannelConversation(
-            channel=channel,
+            channel_user_id=channel_user_id,
             external_chat_id=external_chat_id,
             conversation_id=conversation_id,
         )
@@ -38,6 +38,16 @@ class ChannelConversationRepository:
         await self.db.flush()
 
         return mapping
+
+    async def delete_by_channel_user(
+        self,
+        channel_user_id: UUID,
+    ) -> None:
+        statement = delete(ChannelConversation).where(
+            ChannelConversation.channel_user_id == channel_user_id,
+        )
+
+        await self.db.execute(statement)
 
     async def lock(
         self,

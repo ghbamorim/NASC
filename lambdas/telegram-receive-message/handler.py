@@ -59,10 +59,22 @@ def lambda_handler(event, context):
         if not message or not message.get("text"):
             return {"statusCode": 200}
 
+        chat = message["chat"]
+
+        if chat["type"] != "private":
+            return {"statusCode": 200}
+
+        sender = message.get("from")
+
+        if not sender or sender.get("is_bot"):
+            return {"statusCode": 200}
+
         payload = {
             "channel": "telegram",
-            "external_chat_id": str(message["chat"]["id"]),
+            "external_user_id": str(sender["id"]),
+            "external_chat_id": str(chat["id"]),
             "external_message_id": str(update["update_id"]),
+            "message_date": message["date"],
             "message": message["text"],
         }
 

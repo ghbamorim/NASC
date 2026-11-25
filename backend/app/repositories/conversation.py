@@ -12,30 +12,41 @@ class ConversationRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def create(self) -> Conversation:
-        conversation = Conversation()
+    async def create(self, user_id: UUID) -> Conversation:
+        conversation = Conversation(user_id=user_id)
         self.db.add(conversation)
         await self.db.flush()
         return conversation
 
-    async def get(self, conversation_id: UUID) -> Conversation | None:
+    async def get(
+        self,
+        conversation_id: UUID,
+        user_id: UUID,
+    ) -> Conversation | None:
         stmt = (
             select(Conversation)
             .options(selectinload(Conversation.messages))
-            .where(Conversation.id == conversation_id)
+            .where(
+                Conversation.id == conversation_id,
+                Conversation.user_id == user_id,
+            )
         )
         return await self.db.scalar(stmt)
 
     async def add_message(
         self,
         conversation_id: UUID,
+        user_id: UUID,
         role: MessageRole,
         content: str,
         external_message_id: str | None = None,
     ) -> Message:
         stmt = (
             select(Conversation)
-            .where(Conversation.id == conversation_id)
+            .where(
+                Conversation.id == conversation_id,
+                Conversation.user_id == user_id,
+            )
             .with_for_update()
         )
 
@@ -68,12 +79,18 @@ class ConversationRepository:
     async def get_existing_response(
         self,
         conversation_id: UUID,
+        user_id: UUID,
         external_message_id: str,
     ) -> str | None:
-        statement = select(Message).where(
-            Message.conversation_id == conversation_id,
-            Message.external_message_id == external_message_id,
-            Message.role == "user",
+        statement = (
+            select(Message)
+            .join(Conversation, Conversation.id == Message.conversation_id)
+            .where(
+                Message.conversation_id == conversation_id,
+                Conversation.user_id == user_id,
+                Message.external_message_id == external_message_id,
+                Message.role == "user",
+            )
         )
 
         message = await self.db.scalar(statement)
@@ -81,10 +98,15 @@ class ConversationRepository:
         if message is None:
             return None
 
-        statement = select(Message.content).where(
-            Message.conversation_id == conversation_id,
-            Message.sequence == message.sequence + 1,
-            Message.role == "assistant",
+        statement = (
+            select(Message.content)
+            .join(Conversation, Conversation.id == Message.conversation_id)
+            .where(
+                Message.conversation_id == conversation_id,
+                Conversation.user_id == user_id,
+                Message.sequence == message.sequence + 1,
+                Message.role == "assistant",
+            )
         )
 
         return await self.db.scalar(statement)
