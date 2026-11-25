@@ -39,6 +39,10 @@ jobs:
         working-directory: lambdas/telegram-process-message
         run: bash build.sh
 
+      - name: Build Telegram receive message Lambda
+        working-directory: lambdas/telegram-receive-message
+        run: bash build.sh
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:

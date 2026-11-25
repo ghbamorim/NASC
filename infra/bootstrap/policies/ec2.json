@@ -90,7 +90,9 @@
             "CreateSecurityGroup",
             "CreateVolume",
             "AllocateAddress",
-            "RunInstances"
+            "RunInstances",
+            "AuthorizeSecurityGroupIngress",
+            "AuthorizeSecurityGroupEgress"
           ],
           "aws:RequestTag/Project": "NASC"
         }
@@ -230,6 +232,20 @@
         },
         "StringNotEquals": {
           "ec2:Attribute/InstanceType": ["t3.micro", "t3.small"]
+        }
+      }
+    },
+    {
+      "Sid": "CreateNASCSecurityGroupRules",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:security-group-rule/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC"
         }
       }
     }

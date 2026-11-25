@@ -12,7 +12,8 @@ locals {
     "cloudwatch",
     "cloudwatch-composite",
     "lambda",
-    "sqs"
+    "sqs",
+    "apigateway"
   ])
 
   attached_policy_names = toset([
@@ -25,7 +26,8 @@ locals {
     "ssm",
     "cloudwatch",
     "sqs",
-    "lambda"
+    "lambda",
+    "apigateway"
 
     # Future integrations requiring security review.
     # "ec2-integrations",
