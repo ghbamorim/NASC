@@ -12,6 +12,8 @@ resource "aws_instance" "main" {
 
   iam_instance_profile = "nasc-dev-ec2-profile"
 
+  source_dest_check = false
+
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"
@@ -38,9 +40,64 @@ resource "aws_instance" "main" {
     #!/bin/bash
     set -euo pipefail
 
-    dnf install -y docker
+    dnf install -y docker iptables-nft
 
     systemctl enable --now docker
+
+    cat > /usr/local/sbin/nasc-nat.sh <<'SCRIPT'
+    #!/bin/bash
+    set -euo pipefail
+
+    sysctl -w net.ipv4.ip_forward=1
+
+    iptables -t nat -C POSTROUTING \
+      -s 10.0.2.0/23 -o ens5 -j MASQUERADE ||
+    iptables -t nat -A POSTROUTING \
+      -s 10.0.2.0/23 -o ens5 -j MASQUERADE
+
+    iptables -C DOCKER-USER \
+      -i ens5 -o ens5 -s 10.0.2.0/23 \
+      -p tcp --dport 443 \
+      -m conntrack --ctstate NEW,ESTABLISHED \
+      -j ACCEPT ||
+    iptables -I DOCKER-USER 1 \
+      -i ens5 -o ens5 -s 10.0.2.0/23 \
+      -p tcp --dport 443 \
+      -m conntrack --ctstate NEW,ESTABLISHED \
+      -j ACCEPT
+
+    iptables -C DOCKER-USER \
+      -i ens5 -o ens5 -d 10.0.2.0/23 \
+      -m conntrack --ctstate ESTABLISHED,RELATED \
+      -j ACCEPT ||
+    iptables -I DOCKER-USER 1 \
+      -i ens5 -o ens5 -d 10.0.2.0/23 \
+      -m conntrack --ctstate ESTABLISHED,RELATED \
+      -j ACCEPT
+    SCRIPT
+
+    chmod 700 /usr/local/sbin/nasc-nat.sh
+
+    cat > /etc/systemd/system/nasc-nat.service <<'UNIT'
+    [Unit]
+    Description=NASC NAT configuration
+    Wants=network-online.target
+    Requires=docker.service
+    After=network-online.target docker.service
+    PartOf=docker.service
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/local/sbin/nasc-nat.sh
+    RemainAfterExit=yes
+
+    [Install]
+    WantedBy=multi-user.target
+    UNIT
+
+    systemctl daemon-reload
+    systemctl enable --now nasc-nat.service
+
     systemctl enable --now amazon-ssm-agent
 
     usermod -aG docker ec2-user
