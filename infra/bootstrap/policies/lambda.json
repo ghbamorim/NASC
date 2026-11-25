@@ -116,6 +116,16 @@
           "aws:RequestedRegion": "${region}"
         }
       }
+    },
+    {
+      "Sid": "ManageEventSourceMappingTags",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "lambda:ListTags"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:242627333067:event-source-mapping:*"
     }
   ]
 }
