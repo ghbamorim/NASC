@@ -29,6 +29,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str
     gemini_model: str
+    gemini_fallback_models: list[str]
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",

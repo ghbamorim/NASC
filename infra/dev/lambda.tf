@@ -40,7 +40,7 @@ resource "aws_lambda_function" "telegram_process_message" {
   source_code_hash = try(filebase64sha256("${path.module}/../../lambdas/telegram-process-message/function.zip"), null)
 
   memory_size = 128
-  timeout     = 120
+  timeout     = 150
 
   vpc_config {
     subnet_ids = [
