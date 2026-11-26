@@ -10,12 +10,8 @@ import boto3
 @lru_cache(maxsize=1)
 def get_webhook_secret() -> str:
     client = boto3.client("secretsmanager")
-    result = client.get_secret_value(
-        SecretId=os.environ["SECRET_ID"]
-    )
-    return json.loads(result["SecretString"])[
-        "TELEGRAM_WEBHOOK_SECRET"
-    ]
+    result = client.get_secret_value(SecretId=os.environ["SECRET_ID"])
+    return json.loads(result["SecretString"])["TELEGRAM_WEBHOOK_SECRET"]
 
 
 def publish_message(payload: dict) -> None:
@@ -31,8 +27,7 @@ def publish_message(payload: dict) -> None:
 
 def lambda_handler(event, context):
     headers = {
-        key.lower(): value
-        for key, value in (event.get("headers") or {}).items()
+        key.lower(): value for key, value in (event.get("headers") or {}).items()
     }
 
     token = headers.get("x-telegram-bot-api-secret-token", "")
@@ -56,7 +51,7 @@ def lambda_handler(event, context):
 
         message = update.get("message")
 
-        if not message or not message.get("text"):
+        if not message:
             return {"statusCode": 200}
 
         chat = message["chat"]
@@ -75,10 +70,28 @@ def lambda_handler(event, context):
             "external_chat_id": str(chat["id"]),
             "external_message_id": str(update["update_id"]),
             "message_date": message["date"],
-            "message": message["text"],
         }
 
-    except (ValueError, KeyError, TypeError, AttributeError):
+        if message.get("text"):
+            payload["message_type"] = "text"
+            payload["message"] = message["text"]
+        elif message.get("voice"):
+            voice = message["voice"]
+
+            payload["message_type"] = "voice"
+            payload["voice"] = {
+                "file_id": voice["file_id"],
+                "duration": voice["duration"],
+            }
+
+            for field in ("mime_type", "file_size"):
+                if field in voice:
+                    payload["voice"][field] = voice[field]
+
+        else:
+            return {"statusCode": 200}
+
+    except ValueError, KeyError, TypeError, AttributeError:
         return {"statusCode": 400}
 
     publish_message(payload)

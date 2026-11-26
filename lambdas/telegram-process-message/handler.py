@@ -28,8 +28,12 @@ def process_message(payload: dict) -> dict:
         method="POST",
     )
 
-    with urlopen(request, timeout=120) as response:
+    with urlopen(
+        request,
+        timeout=int(os.environ["API_TIMEOUT_SECONDS"]),
+    ) as response:
         return json.load(response)
+
 
 def publish_response(payload: dict, response: dict) -> None:
     client = boto3.client("sqs")
@@ -38,11 +42,17 @@ def publish_response(payload: dict, response: dict) -> None:
         QueueUrl=os.environ["OUTBOUND_QUEUE_URL"],
         MessageBody=json.dumps({
             "external_chat_id": payload["external_chat_id"],
+            "message_type": response.get(
+                "message_type",
+                payload.get("message_type", "text"),
+            ),
+            "response_type": response.get("response_type", "text"),
             "response": response["response"],
         }),
         MessageGroupId=payload["external_chat_id"],
         MessageDeduplicationId=payload["external_message_id"],
     )
+
 
 def lambda_handler(event, _):
     for record in event["Records"]:
@@ -50,4 +60,4 @@ def lambda_handler(event, _):
 
         response = process_message(payload)
 
-        publish_response(payload, response)    
+        publish_response(payload, response)

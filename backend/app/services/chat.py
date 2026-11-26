@@ -1,3 +1,4 @@
+import asyncio
 from uuid import UUID
 
 from pydantic_ai.messages import (
@@ -10,6 +11,7 @@ from pydantic_ai.messages import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.nasc import nasc_agent
+from app.core.settings import settings
 from app.repositories.conversation import ConversationRepository
 
 
@@ -22,6 +24,18 @@ class ChatService:
         self.db = db
         self.repository = conversation_repository or ConversationRepository(db)
 
+    async def get_existing_response(
+        self,
+        conversation_id: UUID,
+        user_id: UUID,
+        external_message_id: str,
+    ) -> str | None:
+        return await self.repository.get_existing_response(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            external_message_id=external_message_id,
+        )
+
     async def chat(
         self,
         user_id: UUID,
@@ -30,7 +44,7 @@ class ChatService:
         external_message_id: str | None = None,
     ) -> tuple[UUID, str]:
         if conversation_id is not None and external_message_id is not None:
-            existing_response = await self.repository.get_existing_response(
+            existing_response = await self.get_existing_response(
                 conversation_id=conversation_id,
                 user_id=user_id,
                 external_message_id=external_message_id,
@@ -64,7 +78,11 @@ class ChatService:
                         ModelResponse(parts=[TextPart(content=item.content)])
                     )
 
-        result = await nasc_agent.run(message, message_history=history)
+        async with asyncio.timeout(settings.gemini_chat_timeout_seconds):
+            result = await nasc_agent.run(
+                message,
+                message_history=history,
+            )
 
         await self.repository.add_message(
             conversation_id=conversation.id,

@@ -15,8 +15,8 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
-      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-      GEMINI_FALLBACK_MODELS: ${{ vars.GEMINI_FALLBACK_MODELS }}
+      GEMINI_CHAT_MODELS: ${{ vars.GEMINI_CHAT_MODELS }}
+      GEMINI_TRANSCRIPTION_MODELS: ${{ vars.GEMINI_TRANSCRIPTION_MODELS }}
       ECR_REPOSITORY: nasc/dev/backend
 
     steps:
@@ -111,8 +111,8 @@ jobs:
             "$AWS_REGION" \
             "$BACKEND_IMAGE" \
             "$DB_HOST" \
-            "$GEMINI_MODEL" \
-            "$GEMINI_FALLBACK_MODELS"
+            "$GEMINI_CHAT_MODELS" \
+            "$GEMINI_TRANSCRIPTION_MODELS"
 
           COMMAND+=$'\n'"$DEPLOY_COMMAND"
 

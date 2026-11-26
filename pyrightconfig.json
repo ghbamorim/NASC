@@ -1,0 +1,13 @@
+{
+  "pythonVersion": "3.14",
+  "include": ["backend", "lambdas"],
+  "exclude": [
+    "**/.venv",
+    "**/__pycache__",
+    "**/.terraform",
+    "**/.git",
+    "**/node_modules",
+    "**/.pytest_cache",
+    "**/.ruff_cache"
+  ]
+}
