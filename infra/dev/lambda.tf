@@ -40,7 +40,7 @@ resource "aws_lambda_function" "telegram_process_message" {
   source_code_hash = try(filebase64sha256("${path.module}/../../lambdas/telegram-process-message/function.zip"), null)
 
   memory_size = 128
-  timeout     = 150
+  timeout     = 480
 
   vpc_config {
     subnet_ids = [
@@ -54,9 +54,10 @@ resource "aws_lambda_function" "telegram_process_message" {
 
   environment {
     variables = {
-      SECRET_ID          = "nasc/dev/app"
-      API_URL            = "http://${aws_instance.main.private_ip}:8000"
-      OUTBOUND_QUEUE_URL = aws_sqs_queue.telegram_outbound.url
+      SECRET_ID           = "nasc/dev/app"
+      API_URL             = "http://${aws_instance.main.private_ip}:8000"
+      OUTBOUND_QUEUE_URL  = aws_sqs_queue.telegram_outbound.url
+      API_TIMEOUT_SECONDS = "450"
     }
   }
 

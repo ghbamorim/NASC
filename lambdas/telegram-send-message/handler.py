@@ -42,9 +42,15 @@ def send_message(chat_id: str, message: str) -> None:
             raise RuntimeError("Failed to send Telegram message")
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, _):
     for record in event["Records"]:
         payload = json.loads(record["body"])
+        response_type = payload.get("response_type", "text")
+
+        if response_type != "text":
+            raise ValueError(
+                f"Unsupported response type: {response_type}"
+            )
 
         send_message(
             chat_id=payload["external_chat_id"],

@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -28,10 +28,19 @@ class Settings(BaseSettings):
     channel_api_key: SecretStr
     telegram_bot_username: str
     channel_link_token_expire_minutes: int = 10
+    telegram_voice_max_size_bytes: int = Field(default=5 * 1024 * 1024, gt=0)
+    telegram_voice_max_duration_seconds: int = Field(default=300, gt=0)
+    telegram_voice_download_timeout_seconds: int = Field(default=30, gt=0)
+    channel_message_timeout_seconds: int = Field(default=420, gt=0)
 
     gemini_api_key: str
-    gemini_model: str
-    gemini_fallback_models: list[str]
+    gemini_chat_models: list[str] = Field(min_length=1)
+    gemini_chat_model_timeout_seconds: int = Field(default=60, gt=0)
+    gemini_chat_timeout_seconds: int = Field(default=180, gt=0)
+
+    gemini_transcription_models: list[str] = Field(min_length=1)
+    gemini_transcription_model_timeout_seconds: int = Field(default=60, gt=0)
+    gemini_transcription_timeout_seconds: int = Field(default=180, gt=0)
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
