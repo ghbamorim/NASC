@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -8,6 +10,9 @@ from app.routers.channel_messages import router as channel_messages_router
 from app.routers.channel_user import router as channel_user_router
 from app.routers.chat import router as chat_router
 from app.routers.user import router as user_router
+
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 app = FastAPI(title="NASC API")
 

@@ -1,5 +1,6 @@
 import asyncio
 
+import httpx
 from telegram import Bot
 from telegram.error import BadRequest
 
@@ -9,6 +10,52 @@ from app.schemas.channel_messages import VoiceMetadata
 
 
 class TelegramAudioService:
+    async def _download_file(
+        self,
+        file_url: str,
+        max_size: int,
+    ) -> bytes:
+        audio = bytearray()
+
+        try:
+            async with (
+                httpx.AsyncClient(
+                    timeout=settings.telegram_voice_download_timeout_seconds,
+                ) as client,
+                client.stream("GET", file_url) as response,
+            ):
+                if response.status_code in (400, 404, 410):
+                    raise AudioProcessingError(
+                        "Não foi possível recuperar o áudio enviado."
+                    )
+
+                response.raise_for_status()
+
+                async for chunk in response.aiter_bytes(
+                    chunk_size=64 * 1024,
+                ):
+                    if len(audio) + len(chunk) > max_size:
+                        raise AudioProcessingError(
+                            "O áudio excede o tamanho máximo permitido."
+                        )
+
+                    audio.extend(chunk)
+
+        except httpx.HTTPStatusError as exc:
+            raise RuntimeError(
+                f"Telegram audio download failed: HTTP {exc.response.status_code}."
+            ) from None
+
+        except httpx.RequestError as exc:
+            raise RuntimeError(
+                f"Telegram audio download failed: {type(exc).__name__}."
+            ) from None
+
+        if not audio:
+            raise AudioProcessingError("O arquivo de áudio está vazio.")
+
+        return bytes(audio)
+
     async def download(self, voice: VoiceMetadata) -> bytes:
         if voice.duration > settings.telegram_voice_max_duration_seconds:
             raise AudioProcessingError("O áudio excede a duração máxima permitida.")
@@ -40,12 +87,12 @@ class TelegramAudioService:
                         "O áudio excede o tamanho máximo permitido."
                     )
 
-                audio = await file.download_as_bytearray()
+                if not file.file_path:
+                    raise AudioProcessingError(
+                        "Não foi possível localizar o arquivo de áudio."
+                    )
 
-        if not audio:
-            raise AudioProcessingError("O arquivo de áudio está vazio.")
-
-        if len(audio) > max_size:
-            raise AudioProcessingError("O áudio excede o tamanho máximo permitido.")
-
-        return bytes(audio)
+                return await self._download_file(
+                    file_url=file.file_path,
+                    max_size=max_size,
+                )
