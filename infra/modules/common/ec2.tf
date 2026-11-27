@@ -137,7 +137,11 @@ resource "aws_instance" "main" {
     aws_secretsmanager_secret.app,
     aws_iam_role_policy_attachment.ec2_ssm,
     aws_iam_role_policy.ec2_secrets,
-    aws_iam_role_policy.ec2_ecr
+    aws_iam_role_policy.ec2_ecr,
+    aws_vpc_security_group_ingress_rule.ec2_nat_https,
+    aws_vpc_security_group_ingress_rule.ec2_fastapi,
+    aws_vpc_security_group_egress_rule.ec2_outbound,
+    aws_vpc_security_group_ingress_rule.rds_postgres
   ]
 }
 
