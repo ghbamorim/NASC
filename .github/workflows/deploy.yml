@@ -6,6 +6,10 @@ on:
       environment:
         required: true
         type: string
+      source_sha:
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -19,6 +23,7 @@ jobs:
 
     env:
       ENVIRONMENT: ${{ inputs.environment }}
+      SOURCE_SHA: ${{ inputs.source_sha || github.sha }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       GEMINI_CHAT_MODELS: ${{ vars.GEMINI_CHAT_MODELS }}
       GEMINI_TRANSCRIPTION_MODELS: ${{ vars.GEMINI_TRANSCRIPTION_MODELS }}
@@ -27,6 +32,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.3.0
@@ -42,11 +49,11 @@ jobs:
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
-          IMAGE="${REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}"
+          IMAGE="${REGISTRY}/${ECR_REPOSITORY}:${SOURCE_SHA}"
 
           if aws ecr describe-images \
             --repository-name "$ECR_REPOSITORY" \
-            --image-ids "imageTag=${GITHUB_SHA}" \
+            --image-ids "imageTag=${SOURCE_SHA}" \
             > /dev/null 2>&1; then
 
             echo "Image already exists in ECR."
