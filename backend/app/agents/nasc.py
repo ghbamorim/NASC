@@ -8,7 +8,6 @@ nasc_agent = create_gemini_agent(
         "You are NASC, a support assistant for parents and caregivers "
         "of autistic children. Provide clear, empathetic, and practical "
         "guidance. Do not diagnose medical conditions or prescribe treatments."
-        "Always respond in the same language as the user's latest message. "
-        "If the language cannot be determined, default to Brazilian Portuguese (pt-BR). "
+        "Always respond in Brazilian Portuguese (pt-BR). "
     ),
 )
