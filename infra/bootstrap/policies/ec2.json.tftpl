@@ -1,0 +1,276 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadEC2",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "ec2:GetManagedPrefixListEntries",
+        "ec2:GetSecurityGroupsForVpc"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "${region}"
+        }
+      }
+    },
+    {
+      "Sid": "CreateTaggedNASCResources",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateVpc",
+        "ec2:CreateSubnet",
+        "ec2:CreateInternetGateway",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateVolume"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${region}:${account_id}:vpc/*",
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:internet-gateway/*",
+        "arn:aws:ec2:${region}:${account_id}:route-table/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*",
+        "arn:aws:ec2:${region}:${account_id}:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "UseNASCVpc",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateSubnet",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchNASCInstances",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}",
+          "ec2:InstanceType": ["t3.micro", "t3.small"]
+        }
+      }
+    },
+    {
+      "Sid": "LaunchNASCVolumes",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:volume/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchWithNASCNetwork",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": [
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchWithSupportingResources",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": [
+        "arn:aws:ec2:${region}::image/*",
+        "arn:aws:ec2:${region}::snapshot/*",
+        "arn:aws:ec2:${region}:${account_id}:network-interface/*"
+      ]
+    },
+    {
+      "Sid": "TagResourcesDuringCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": [
+            "CreateVpc",
+            "CreateSubnet",
+            "CreateInternetGateway",
+            "CreateRouteTable",
+            "CreateSecurityGroup",
+            "CreateVolume",
+            "RunInstances",
+            "AuthorizeSecurityGroupIngress",
+            "AuthorizeSecurityGroupEgress"
+          ],
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageExistingNASCTags",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        },
+        "ForAllValues:StringNotEqualsIgnoreCase": {
+          "aws:TagKeys": ["Project", "Environment"]
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCInstances",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:TerminateInstances",
+        "ec2:StartInstances",
+        "ec2:StopInstances",
+        "ec2:RebootInstances",
+        "ec2:ModifyInstanceAttribute",
+        "ec2:ModifyInstanceCreditSpecification",
+        "ec2:ModifyInstanceMetadataOptions",
+        "ec2:AssociateIamInstanceProfile",
+        "ec2:DisassociateIamInstanceProfile",
+        "ec2:ReplaceIamInstanceProfileAssociation"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCNetwork",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteVpc",
+        "ec2:ModifyVpcAttribute",
+        "ec2:DeleteSubnet",
+        "ec2:ModifySubnetAttribute",
+        "ec2:DeleteInternetGateway",
+        "ec2:AttachInternetGateway",
+        "ec2:DetachInternetGateway",
+        "ec2:DeleteRouteTable",
+        "ec2:CreateRoute",
+        "ec2:ReplaceRoute",
+        "ec2:DeleteRoute",
+        "ec2:AssociateRouteTable",
+        "ec2:DisassociateRouteTable",
+        "ec2:ReplaceRouteTableAssociation",
+        "ec2:DeleteSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:ModifySecurityGroupRules"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${region}:${account_id}:vpc/*",
+        "arn:aws:ec2:${region}:${account_id}:subnet/*",
+        "arn:aws:ec2:${region}:${account_id}:internet-gateway/*",
+        "arn:aws:ec2:${region}:${account_id}:route-table/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group/*",
+        "arn:aws:ec2:${region}:${account_id}:security-group-rule/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "CreateNASCSecurityGroupRules",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:security-group-rule/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCVolumes",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteVolume",
+        "ec2:AttachVolume",
+        "ec2:DetachVolume",
+        "ec2:ModifyVolume"
+      ],
+      "Resource": [
+        "arn:aws:ec2:${region}:${account_id}:volume/*",
+        "arn:aws:ec2:${region}:${account_id}:instance/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "NASC",
+          "ec2:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "RestrictEC2InstanceType",
+      "Effect": "Deny",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
+      "Condition": {
+        "StringNotEquals": {
+          "ec2:InstanceType": ["t3.micro", "t3.small"]
+        }
+      }
+    },
+    {
+      "Sid": "RestrictInstanceTypeModification",
+      "Effect": "Deny",
+      "Action": "ec2:ModifyInstanceAttribute",
+      "Resource": "arn:aws:ec2:${region}:${account_id}:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:Attribute": "instanceType"
+        },
+        "StringNotEquals": {
+          "ec2:Attribute/InstanceType": ["t3.micro", "t3.small"]
+        }
+      }
+    }
+  ]
+}

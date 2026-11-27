@@ -8,11 +8,12 @@ on:
       - main
     paths:
       - "infra/dev/**"
+      - "infra/modules/common/**"
       - "backend/**"
-      - "deploy/dev/**"
+      - "deploy/common/**"
       - ".github/workflows/dev.yml"
-      - ".github/workflows/terraform-dev.yml"
-      - ".github/workflows/deploy-dev.yml"
+      - ".github/workflows/terraform.yml"
+      - ".github/workflows/deploy.yml"
       - "lambdas/**"
 
 permissions:
@@ -42,14 +43,17 @@ jobs:
           filters: |
             terraform:
               - 'infra/dev/**'
-              - '.github/workflows/terraform-dev.yml'
+              - 'infra/modules/common/**'
+              - '.github/workflows/terraform.yml'
               - 'lambdas/**'
 
   terraform:
     name: Provision AWS Infrastructure
     needs: changes
     if: needs.changes.outputs.terraform == 'true'
-    uses: ./.github/workflows/terraform-dev.yml
+    uses: ./.github/workflows/terraform.yml
+    with:
+      environment: dev
 
   deploy:
     name: Deploy Application
@@ -61,4 +65,6 @@ jobs:
         needs.terraform.result == 'success' ||
         needs.terraform.result == 'skipped'
       )
-    uses: ./.github/workflows/deploy-dev.yml
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: dev

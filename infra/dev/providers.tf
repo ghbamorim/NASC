@@ -9,11 +9,6 @@ terraform {
   }
 }
 
-variable "aws_region" {
-  type    = string
-  default = "us-east-2"
-}
-
 provider "aws" {
   region = var.aws_region
 
@@ -25,5 +20,3 @@ provider "aws" {
     }
   }
 }
-
-data "aws_caller_identity" "current" {}
