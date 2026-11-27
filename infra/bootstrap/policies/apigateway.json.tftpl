@@ -14,7 +14,10 @@
       "Sid": "CreateNASCAPI",
       "Effect": "Allow",
       "Action": "apigateway:POST",
-      "Resource": "arn:aws:apigateway:${region}::/apis",
+      "Resource": [
+        "arn:aws:apigateway:${region}::/apis",
+        "arn:aws:apigateway:${region}::/tags/arn%3Aaws%3Aapigateway%3A${region}%3A%3A%2Fv2%2Fapis%2F*"
+      ],
       "Condition": {
         "StringEquals": {
           "aws:RequestTag/Project": "NASC",
@@ -59,6 +62,20 @@
           "aws:ResourceTag/Environment": "${environment}"
         }
       }
+    },
+    {
+    "Sid": "TagNASCAPIStage",
+    "Effect": "Allow",
+    "Action": "apigateway:TagResource",
+    "Resource": "arn:aws:apigateway:${region}::/apis/??????????/stages",
+    "Condition": {
+      "StringEquals": {
+        "aws:ResourceTag/Project": "NASC",
+        "aws:ResourceTag/Environment": "${environment}",
+        "aws:RequestTag/Project": "NASC",
+        "aws:RequestTag/Environment": "${environment}"
+      }
     }
+  }
   ]
 }
