@@ -1,0 +1,100 @@
+name: Testing
+
+run-name: "Testing | Promote ${{ inputs.source_sha }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: "Commit SHA successfully deployed to dev"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: testing
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Promotion
+    runs-on: ubuntu-latest
+
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - name: Validate branch and SHA
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Promotion must run from main." >&2
+            exit 1
+          fi
+
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "A full commit SHA is required." >&2
+            exit 1
+          fi
+
+      - name: Verify successful development deployment
+        run: |
+          set -euo pipefail
+
+          RUN_IDS=$(gh api --method GET \
+            "repos/${GH_REPO}/actions/workflows/dev.yml/runs" \
+            -f branch=main \
+            -f event=push \
+            -f head_sha="$SOURCE_SHA" \
+            -f status=success \
+            --paginate \
+            --jq '.workflow_runs[].id')
+
+          for RUN_ID in $RUN_IDS; do
+            if gh api \
+              "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs" \
+              --paginate \
+              --jq '.jobs[] | select(
+                .name == "Deploy Application / Build and Deploy to EC2"
+                and .conclusion == "success"
+              ) | .id' | grep -q '[0-9]'; then
+
+              echo "Successful development deployment: $RUN_ID"
+              exit 0
+
+            fi
+          done
+
+          echo "No successful development deployment found." >&2
+          exit 1
+
+      - name: Checkout promoted revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_sha }}
+
+      - name: Verify test infrastructure configuration
+        run: test -f infra/test/main.tf
+
+  terraform:
+    name: Provision AWS Infrastructure
+    needs: validate
+    uses: ./.github/workflows/terraform.yml
+    with:
+      environment: test
+      source_sha: ${{ inputs.source_sha }}
+
+  deploy:
+    name: Deploy Application
+    needs: terraform
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: test
+      source_sha: ${{ inputs.source_sha }}
