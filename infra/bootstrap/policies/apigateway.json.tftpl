@@ -1,0 +1,64 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadHTTPAPIs",
+      "Effect": "Allow",
+      "Action": "apigateway:GET",
+      "Resource": [
+        "arn:aws:apigateway:${region}::/apis",
+        "arn:aws:apigateway:${region}::/apis/*"
+      ]
+    },
+    {
+      "Sid": "CreateNASCAPI",
+      "Effect": "Allow",
+      "Action": "apigateway:POST",
+      "Resource": "arn:aws:apigateway:${region}::/apis",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "NASC",
+          "aws:RequestTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCAPI",
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:PATCH",
+        "apigateway:DELETE"
+      ],
+      "Resource": "arn:aws:apigateway:${region}::/apis/??????????",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "NASC",
+          "aws:ResourceTag/Environment": "${environment}"
+        }
+      }
+    },
+    {
+      "Sid": "ManageNASCAPIResources",
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:POST",
+        "apigateway:PATCH",
+        "apigateway:DELETE"
+      ],
+      "Resource": [
+        "arn:aws:apigateway:${region}::/apis/??????????/routes",
+        "arn:aws:apigateway:${region}::/apis/??????????/routes/*",
+        "arn:aws:apigateway:${region}::/apis/??????????/integrations",
+        "arn:aws:apigateway:${region}::/apis/??????????/integrations/*",
+        "arn:aws:apigateway:${region}::/apis/??????????/stages",
+        "arn:aws:apigateway:${region}::/apis/??????????/stages/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "NASC",
+          "aws:ResourceTag/Environment": "${environment}"
+        }
+      }
+    }
+  ]
+}

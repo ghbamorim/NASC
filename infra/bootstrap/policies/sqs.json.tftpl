@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ManageNASCQueues",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:CreateQueue",
+        "sqs:DeleteQueue",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl",
+        "sqs:SetQueueAttributes",
+        "sqs:ListQueueTags",
+        "sqs:TagQueue",
+        "sqs:UntagQueue"
+      ],
+      "Resource": [
+        "arn:aws:sqs:${region}:${account_id}:nasc-${environment}-telegram-inbound.fifo",
+        "arn:aws:sqs:${region}:${account_id}:nasc-${environment}-telegram-outbound.fifo",
+        "arn:aws:sqs:${region}:${account_id}:nasc-${environment}-telegram-inbound-dlq.fifo",
+        "arn:aws:sqs:${region}:${account_id}:nasc-${environment}-telegram-outbound-dlq.fifo"
+      ]
+    }
+  ]
+}
